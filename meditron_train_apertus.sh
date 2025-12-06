@@ -33,7 +33,8 @@ export WANDB_MODE="online"
 
 export TEMPLATE_CONFIG="$PROJECT_ROOT/axolotl_config/apertus-8b-ablation-no-mediset.yaml"
 export AXOLOTL_CONFIG_FILE="config_generated_${SLURM_JOB_ID}.yaml"
-envsubst < "$TEMPLATE_CONFIG" > "$AXOLOTL_CONFIG_FILE"
+export VARS_TO_SUB='$PROJECT_ROOT $STORAGE_ROOT $USER_STORAGE $WANDB_PROJECT $WANDB_ENTITY'
+envsubst "$VARS_TO_SUB" < "$TEMPLATE_CONFIG" > "$AXOLOTL_CONFIG_FILE"
 
 echo "=================================================="
 echo "DEBUG: CHECKING GENERATED CONFIG (First 20 lines)"
