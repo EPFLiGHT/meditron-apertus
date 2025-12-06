@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name meditron-apertus-8b-only-med-new-2
-#SBATCH --output reports/R-%x.%j.out
+#SBATCH --output reports/R-%x.%j.err
 #SBATCH --error reports/R-%x.%j.err
 #SBATCH --nodes 4
 #SBATCH --ntasks-per-node 1
@@ -13,6 +13,8 @@
 # ========================
 # 1. Environment 
 # ========================
+
+echo "Job launched from: ${SLURM_SUBMIT_DIR:-$(pwd)}"
 
 if [ -f .env ]; then
     set -a
