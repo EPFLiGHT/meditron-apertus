@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name meditron-apertus-8b-ablation-no-mediset
-#SBATCH --output reports/R-%x.%j.err
+#SBATCH --output reports/R-%x.%j.out
 #SBATCH --error reports/R-%x.%j.err
 #SBATCH --nodes 2
 #SBATCH --ntasks-per-node 1
@@ -14,7 +14,7 @@
 # 1. Environment 
 # ========================
 
-PROJECT_ROOT=${SLURM_SUBMIT_DIR:-$(pwd)}
+export PROJECT_ROOT=${SLURM_SUBMIT_DIR:-$(pwd)}
 echo "Project Root detected as: $PROJECT_ROOT"
 
 if [ -f "$PROJECT_ROOT/.env" ]; then
@@ -31,9 +31,15 @@ export HF_HOME="$USER_STORAGE/hf"
 export WANDB_DIR="$USER_STORAGE/wandb"
 export WANDB_MODE="online"
 
-TEMPLATE_CONFIG="$PROJECT_ROOT/axolotl_config/apertus-8b-ablation-no-mediset.yaml"
-AXOLOTL_CONFIG_FILE="config_generated_${SLURM_JOB_ID}.yaml"
+export TEMPLATE_CONFIG="$PROJECT_ROOT/axolotl_config/apertus-8b-ablation-no-mediset.yaml"
+export AXOLOTL_CONFIG_FILE="config_generated_${SLURM_JOB_ID}.yaml"
 envsubst < "$TEMPLATE_CONFIG" > "$AXOLOTL_CONFIG_FILE"
+
+echo "=================================================="
+echo "DEBUG: CHECKING GENERATED CONFIG (First 20 lines)"
+echo "File: $AXOLOTL_CONFIG_FILE"
+head -n 20 "$AXOLOTL_CONFIG_FILE"
+echo "=================================================="
 
 # SHOULD not be tmp Caching locations
 export XDG_CACHE_HOME="$USER_STORAGE/cache"
