@@ -14,14 +14,16 @@
 # 1. Environment 
 # ========================
 
-echo "Job launched from: ${SLURM_SUBMIT_DIR:-$(pwd)}"
+PROJECT_ROOT=${SLURM_SUBMIT_DIR:-$(pwd)}
+echo "Project Root detected as: $PROJECT_ROOT"
 
-if [ -f .env ]; then
+if [ -f "$PROJECT_ROOT/.env" ]; then
     set -a
-    source .env
+    source "$PROJECT_ROOT/.env"
     set +a
+    echo "Successfully loaded .env"
 else
-    echo "ERROR: .env file not found. Please create one based on .env.example"
+    echo "CRITICAL ERROR: .env file not found at $PROJECT_ROOT/.env"
     exit 1
 fi
 
