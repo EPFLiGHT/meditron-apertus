@@ -1,0 +1,7 @@
+axolotl/
+reports/
+*.out
+*.err
+*.log
+.env
+setup.md
