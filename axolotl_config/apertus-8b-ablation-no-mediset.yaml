@@ -1,14 +1,14 @@
 # ========================
 # Model & Paths
 # ========================
-base_model: ${oc.env:STORAGE_ROOT}/apertus/huggingface/Apertus8B
-output_dir: ${oc.env:STORAGE_ROOT}/meditron/models/meditron-apertus-8b-ablation-no-mediset.yaml
-dataset_prepared_path: ${oc.env:USER_STORAGE}/prepared/ablation
+base_model: /capstor/store/cscs/swissai/a127/apertus/huggingface/Apertus8B
+output_dir: /capstor/store/cscs/swissai/a127/meditron/models/meditron-apertus-8b-ablation-no-mediset.yaml
+dataset_prepared_path: /capstor/store/cscs/swissai/a127/homes/theimer/prepared/ablation
 
 # ========================
 # Hardware & Speed
 # ========================
-deepspeed: ${oc.env:PROJECT_ROOT}/axolotl_config/deepspeed_zero_2.json
+deepspeed: axolotl_config/deepspeed_zero_2.json
 bf16: auto
 tf32: true # SHOULD be true
 flash_attention: true
@@ -24,7 +24,7 @@ chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
   - &chat_config
-    path: ${oc.env:STORAGE_ROOT}/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
     type: chat_template
     ds_type: json
     split: train
@@ -39,16 +39,31 @@ datasets:
       role: from
       content: value
 
+  #- <<: *chat_config
+  #  path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/meadow/meadow.jsonl
+
+  #- <<: *chat_config
+  #  path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medqa/medqa.jsonl
+
   - <<: *chat_config
-    path: ${oc.env:STORAGE_ROOT}/meditron/datasets/masked/medtext/medtext.jsonl
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medtext/medtext.jsonl
+
+  #- <<: *chat_config
+  #  path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
+
+  #- <<: *chat_config
+  #  path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medmcqa/medmcqa.jsonl
+
+  #- <<: *chat_config
+  #  path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
 
   # -- Completion Datasets --
-  - path: ${oc.env:STORAGE_ROOT}/meditron/datasets/pretrain/guidelines/guidelines.jsonl
+  - path: /capstor/store/cscs/swissai/a127/meditron/datasets/pretrain/guidelines/guidelines.jsonl
     ds_type: json
     type: completion
     field: text
 
-  - path: ${oc.env:STORAGE_ROOT}/meditron/datasets/pretrain/pubmed/pubmed_3B.jsonl
+  - path: /capstor/store/cscs/swissai/a127/meditron/datasets/pretrain/pubmed/pubmed_3B.jsonl
     ds_type: json
     type: completion
     field: text
@@ -106,6 +121,6 @@ early_stopping_patience: null
 
 wandb_project: Meditron Apertus
 wandb_entity: alexs-team
-wandb_name: Meditron-Apertus-70B-only-med-no-moove
+wandb_name: 
 wandb_log_model: null
 wandb_watch: null
