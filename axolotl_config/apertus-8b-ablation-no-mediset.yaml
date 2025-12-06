@@ -23,8 +23,7 @@ strict: false
 chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
-  - &chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
+  - path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
     type: chat_template
     ds_type: json
     split: train
@@ -39,23 +38,20 @@ datasets:
       role: from
       content: value
 
-  #- <<: *chat_config
-  #  path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
-
-  #- <<: *chat_config
-  #  path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
-
-  #- <<: *chat_config
-  #  path: $STORAGE_ROOT/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
-
-  #- <<: *chat_config
-  #  path: $STORAGE_ROOT/meditron/datasets/masked/medmcqa/medmcqa.jsonl
-
-  #- <<: *chat_config
-  #  path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
+  - path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
+    type: chat_template
+    ds_type: json
+    split: train
+    field_messages: conversations
+    field_human: human
+    field_model: gpt
+    roles:
+      user: [human]
+      assistant: [gpt]
+      system: [system]
+    message_property_mappings:
+      role: from
+      content: value
 
   # -- Completion Datasets --
   - path: $STORAGE_ROOT/meditron/datasets/pretrain/guidelines/guidelines.jsonl
