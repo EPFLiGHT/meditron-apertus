@@ -5,6 +5,9 @@ base_model: /capstor/store/cscs/swissai/a127/apertus/huggingface/Apertus70B
 output_dir: /capstor/store/cscs/swissai/a127/meditron/models/Meditron-Apertus-70B-only-med-no-moove-part2
 resume_from_checkpoint: /capstor/store/cscs/swissai/a127/meditron/models/Meditron-Apertus-70B-only-med-no-moove/checkpoint-81/
 
+dataset_prepared_path: /capstor/store/cscs/swissai/a127/homes/theimer/prepared/Meditron-Apertus-70B-only-med-no-moove-part2
+load_prepared_dataset: true
+
 # ========================
 # Hardware & Speed
 # ========================

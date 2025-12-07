@@ -4,6 +4,9 @@
 base_model: /capstor/store/cscs/swissai/a127/apertus/huggingface/Apertus8B
 output_dir: /capstor/store/cscs/swissai/a127/meditron/models/meditron-apertus-8b-ablation-no-mediset
 
+dataset_prepared_path: /capstor/store/cscs/swissai/a127/homes/theimer/prepared/ablation
+load_prepared_dataset: true
+
 # ========================
 # Hardware & Speed
 # ========================
