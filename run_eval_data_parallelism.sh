@@ -20,7 +20,7 @@ echo "MODEL_PATH=$MODEL_PATH"
 
 accelerate launch -m lm_eval --model hf \
   --model_args "pretrained=$MODEL_PATH,dtype=bfloat16,parallelize=False,trust_remote_code=True" \
-  --tasks medqa_g \
+  --tasks pubmedqa,medmcqa,medqa_4options \
   --batch_size 1 \
   --verbosity DEBUG \
   --log_samples \

@@ -1,15 +1,14 @@
 # ========================
 # Model & Paths
 # ========================
-base_model: $STORAGE_ROOT/apertus/huggingface/Apertus70B
-output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-70B-only-med-no-moove-part2
-dataset_prepared_path: $USER_STORAGE/prepared/nomoove
-resume_from_checkpoint: $STORAGE_ROOT/meditron/models/Meditron-Apertus-70B-only-med-no-moove/checkpoint-81/
+base_model: /capstor/store/cscs/swissai/a127/apertus/huggingface/Apertus70B
+output_dir: /capstor/store/cscs/swissai/a127/meditron/models/Meditron-Apertus-70B-only-med-no-moove-part2
+resume_from_checkpoint: /capstor/store/cscs/swissai/a127/meditron/models/Meditron-Apertus-70B-only-med-no-moove/checkpoint-81/
 
 # ========================
 # Hardware & Speed
 # ========================
-deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed.json
+deepspeed: /users/theimer/meditron-apertus/axolotl_config/deepspeed.json
 bf16: auto
 tf32: false # SHOULD be true
 flash_attention: true
@@ -25,7 +24,7 @@ chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
   - &chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
     type: chat_template
     ds_type: json
     split: train
@@ -41,30 +40,30 @@ datasets:
       content: value
 
   - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/meadow/meadow.jsonl
 
   - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medqa/medqa.jsonl
 
   - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medtext/medtext.jsonl
 
   - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
 
   - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medmcqa/medmcqa.jsonl
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medmcqa/medmcqa.jsonl
 
   - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
 
   # -- Completion Datasets --
-  - path: $STORAGE_ROOT/meditron/datasets/pretrain/guidelines/guidelines.jsonl
+  - path: /capstor/store/cscs/swissai/a127/meditron/datasets/pretrain/guidelines/guidelines.jsonl
     ds_type: json
     type: completion
     field: text
 
-  - path: $STORAGE_ROOT/meditron/datasets/pretrain/pubmed/pubmed_3B.jsonl
+  - path: /capstor/store/cscs/swissai/a127/meditron/datasets/pretrain/pubmed/pubmed_3B.jsonl
     ds_type: json
     type: completion
     field: text
@@ -120,8 +119,8 @@ eval_set_size: 0.0 # SHOULD be 0.01
 eval_table_size: null
 early_stopping_patience: null
 
-wandb_project: $WANDB_PROJECT
-wandb_entity: $WANDB_ENTITY
+wandb_project: Meditron Apertus
+wandb_entity: alexs-team
 wandb_name: Meditron-Apertus-70B-only-med-no-moove
 wandb_log_model: null
 wandb_watch: null

@@ -5,3 +5,4 @@ reports/
 *.log
 .env
 setup.md
+script_login.bash

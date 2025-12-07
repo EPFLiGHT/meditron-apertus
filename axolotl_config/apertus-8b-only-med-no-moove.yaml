@@ -1,15 +1,15 @@
 # ========================
 # Model & Paths
 # ========================
-base_model: /capstor/store/cscs/swissai/a127/apertus/huggingface/Apertus8B
-output_dir: /capstor/store/cscs/swissai/a127/meditron/models/meditron-apertus-8b-ablation-no-mediset
+base_model: /capstor/store/cscs/swissai/a127/apertus/huggingface/Apertus70B
+output_dir: Meditron-Apertus-8B-only-med-no-moove
 
 # ========================
 # Hardware & Speed
 # ========================
-deepspeed: axolotl_config/deepspeed_zero_2.json
+deepspeed: /users/theimer/meditron-apertus/axolotl_config/deepspeed.json
 bf16: auto
-tf32: true # SHOULD be true
+tf32: false # SHOULD be true
 flash_attention: true
 flash_attn_rms_norm: true
 flash_attn_fuse_qkv: false
@@ -38,23 +38,23 @@ datasets:
       role: from
       content: value
 
-  #- <<: *chat_config
-  #  path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/meadow/meadow.jsonl
+  - <<: *chat_config
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/meadow/meadow.jsonl
 
-  #- <<: *chat_config
-  #  path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medqa/medqa.jsonl
+  - <<: *chat_config
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medqa/medqa.jsonl
 
   - <<: *chat_config
     path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medtext/medtext.jsonl
 
-  #- <<: *chat_config
-  #  path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
+  - <<: *chat_config
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
 
-  #- <<: *chat_config
-  #  path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medmcqa/medmcqa.jsonl
+  - <<: *chat_config
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medmcqa/medmcqa.jsonl
 
-  #- <<: *chat_config
-  #  path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
+  - <<: *chat_config
+    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
 
   # -- Completion Datasets --
   - path: /capstor/store/cscs/swissai/a127/meditron/datasets/pretrain/guidelines/guidelines.jsonl
@@ -67,7 +67,7 @@ datasets:
     type: completion
     field: text
 
-dataset_processes: 32
+dataset_processes: 128
 shuffle_merged_datasets: true
 
 # ========================
@@ -82,8 +82,8 @@ group_by_length: false
 train_on_inputs: false
 
 num_epochs: 1
-micro_batch_size: 1
-gradient_accumulation_steps: 16
+micro_batch_size: 4
+gradient_accumulation_steps: 8
 max_grad_norm: 1.0
 
 # ========================
@@ -95,10 +95,10 @@ optim_args:
 learning_rate: 1.0e-5
 lr_scheduler: cosine
 cosine_min_lr_ratio: 0.1
-warmup_ratio: 0.3 #SHOULD have a warmup eg 0.3
+warmup_ratio: 0.0 #SHOULD have a warmup eg 0.3
 weight_decay: 0.05
 
-gradient_checkpointing: false
+gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: false
 
@@ -113,13 +113,13 @@ load_in_8bit: false
 # ========================
 logging_steps: 1
 saves_per_epoch: 4
-evals_per_epoch: 4 #SHOULD be 4
-eval_set_size: 0.01 # SHOULD be 0.01
+evals_per_epoch: 0 #SHOULD be 4
+eval_set_size: 0.0 # SHOULD be 0.01
 eval_table_size: null
 early_stopping_patience: null
 
 wandb_project: Meditron Apertus
 wandb_entity: alexs-team
-wandb_name: meditron-apertus-8b-ablation-no-mediset
+wandb_name: Meditron-Apertus-8B-only-med-no-moove
 wandb_log_model: null
 wandb_watch: null
