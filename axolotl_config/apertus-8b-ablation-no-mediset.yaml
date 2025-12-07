@@ -98,7 +98,7 @@ optim_args:
 learning_rate: 1.0e-5
 lr_scheduler: cosine
 cosine_min_lr_ratio: 0.1
-warmup_ratio: 0.3 #SHOULD have a warmup eg 0.3
+warmup_ratio: 0.03 #SHOULD have a warmup eg 0.3
 weight_decay: 0.05
 
 gradient_checkpointing: false
