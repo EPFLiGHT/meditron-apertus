@@ -95,6 +95,25 @@ export AXOLOTL_CONFIG_FILE="$PROJECT_ROOT/$CONFIG_ARG"
 
 echo "🔧 Axolotl Config: $AXOLOTL_CONFIG_FILE"
 
+# Validate the resolved DeepSpeed config path early so rank 0 fails fast with a clear error.
+DEEPSPEED_CFG_PATH=$(python3 - <<'PY'
+import os, yaml
+cfg_path = os.environ["AXOLOTL_CONFIG_FILE"]
+with open(cfg_path, "r") as f:
+    cfg = yaml.safe_load(f)
+ds = cfg.get("deepspeed")
+if isinstance(ds, str):
+    print(os.path.expandvars(ds))
+PY
+)
+if [ -n "$DEEPSPEED_CFG_PATH" ]; then
+    echo "🔧 DeepSpeed Config (resolved): $DEEPSPEED_CFG_PATH"
+    if [ ! -f "$DEEPSPEED_CFG_PATH" ]; then
+        echo "CRITICAL ERROR: DeepSpeed config file not found at resolved path."
+        exit 1
+    fi
+fi
+
 # Caching locations
 export XDG_CACHE_HOME="$USER_STORAGE/cache"
 export TORCH_EXTENSIONS_DIR="$XDG_CACHE_HOME/torch_extensions"
