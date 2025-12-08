@@ -120,7 +120,7 @@ LAUNCHER="torchrun \
     --rdzv_endpoint $MASTER_ADDR:$MASTER_PORT \
     --rdzv_backend c10d \
     --max_restarts 0 \
-    --tee 0"
+    --tee 3"
 
 FULL_CMD="$LAUNCHER -m axolotl.cli.train $AXOLOTL_CONFIG_FILE"
 
