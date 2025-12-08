@@ -10,7 +10,7 @@ load_prepared_dataset: true
 # ========================
 # Hardware & Speed
 # ========================
-deepspeed: axolotl_config/deepspeed_zero_3.json
+deepspeed: ${env:PROJECT_ROOT}/axolotl_config/deepspeed_zero_3.json
 bf16: auto
 tf32: true # SHOULD be true
 flash_attention: true
