@@ -92,6 +92,10 @@ export WANDB_MODE="online"
 
 # Construct full path to config (Handling relative paths from Project Root)
 
+set -o allexport
+source .env
+set +o allexport
+
 SRC_CFG="$PROJECT_ROOT/$CONFIG_ARG"
 DEST_CFG="$PROJECT_ROOT/axolotl_config/config.yaml"
 
