@@ -92,19 +92,32 @@ export WANDB_MODE="online"
 
 # Construct full path to config (Handling relative paths from Project Root)
 
-export AXOLOTL_CONFIG_FILE="$PROJECT_ROOT/$CONFIG_ARG"
+SRC_CFG="$PROJECT_ROOT/$CONFIG_ARG"
+DEST_CFG="$PROJECT_ROOT/axolotl_config/config.yaml"
 
-set -o allexport
-source .env
-set +o allexport
+echo "Using template config: $SRC_CFG"
+echo "Writing substituted config to: $DEST_CFG"
 
-envsubst < $AXOLOTL_CONFIG_FILE > axolotl_config/config.yaml
+envsubst < "$SRC_CFG" > "$DEST_CFG"
 
-echo "🔧 Axolotl Config: "
+export AXOLOTL_CONFIG_FILE="$DEST_CFG"
 
-export AXOLOTL_CONFIG_FILE="axolotl_config/config.yaml"
+echo "🔧 Axolotl Config (after envsubst):"
+cat "$AXOLOTL_CONFIG_FILE"
 
-cat $AXOLOTL_CONFIG_FILE
+python3 - <<'PY'
+import yaml, os
+
+cfg_path = os.environ["AXOLOTL_CONFIG_FILE"]
+print("DEBUG: loading", cfg_path)
+
+with open(cfg_path, "r") as f:
+    cfg = yaml.safe_load(f)
+
+print("Top-level keys:", list(cfg.keys()))
+print("Has 'datasets':", "datasets" in cfg)
+print("Has 'pretraining_dataset':", "pretraining_dataset" in cfg)
+PY
 
 # Validate the resolved DeepSpeed config path early so rank 0 fails fast with a clear error.
 DEEPSPEED_CFG_PATH=$(python3 - <<'PY'
