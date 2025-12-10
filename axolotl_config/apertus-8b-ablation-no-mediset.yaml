@@ -7,6 +7,8 @@ output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-ablation-no-medise
 dataset_prepared_path: $USER_STORAGE/prepared/ablation
 load_prepared_dataset: true
 
+wandb_name: meditron-apertus-8b-ablation-no-mediset
+
 # ========================
 # Hardware & Speed
 # ========================
@@ -130,6 +132,3 @@ early_stopping_patience: null
 
 wandb_project: $WANDB_PROJECT
 wandb_entity: $WANDB_ENTITY
-wandb_name: meditron-apertus-8b-ablation-no-mediset
-wandb_log_model: null
-wandb_watch: null

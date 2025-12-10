@@ -7,6 +7,8 @@ output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-only-med-no-moove
 dataset_prepared_path: $USER_STORAGE/prepared/Meditron-Apertus-8B-only-med-no-moove
 load_prepared_dataset: true
 
+wandb_name: Meditron-Apertus-8B-only-med-no-moove
+
 # ========================
 # Hardware & Speed
 # ========================
@@ -123,6 +125,3 @@ early_stopping_patience: null
 
 wandb_project: $WANDB_PROJECT
 wandb_entity: $WANDB_ENTITY
-wandb_name: Meditron-Apertus-8B-only-med-no-moove
-wandb_log_model: null
-wandb_watch: null

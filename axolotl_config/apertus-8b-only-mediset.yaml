@@ -7,6 +7,8 @@ output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-only-mediset
 dataset_prepared_path: $USER_STORAGE/prepared/only-mediset
 load_prepared_dataset: true
 
+wandb_name: meditron-apertus-8b-only-mediset
+
 # ========================
 # Hardware & Speed
 # ========================
@@ -68,8 +70,8 @@ group_by_length: false
 train_on_inputs: false
 
 num_epochs: 1
-micro_batch_size: 2
-gradient_accumulation_steps: 1
+micro_batch_size: 8
+gradient_accumulation_steps: 2
 max_grad_norm: 1.0
 
 # ========================
@@ -106,6 +108,4 @@ early_stopping_patience: null
 
 wandb_project: $WANDB_PROJECT
 wandb_entity: $WANDB_ENTITY
-wandb_name: meditron-apertus-8b-ablation-no-mediset
-wandb_log_model: null
-wandb_watch: null
+
