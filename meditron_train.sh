@@ -28,7 +28,6 @@ if [ -z "$SLURM_JOB_ID" ]; then
     source .env
     set +o allexport
 
-    export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 
 
     SRC_CFG="$PROJECT_ROOT/$CONFIG_ARG"
@@ -127,7 +126,6 @@ export TORCH_EXTENSIONS_DIR="$XDG_CACHE_HOME/torch_extensions"
 export PYTORCH_KERNEL_CACHE_PATH="$XDG_CACHE_HOME/torch_extensions"
 export TRITON_CACHE_DIR="$XDG_CACHE_HOME/triton"
 
-export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 
 echo "START TIME: $(date)"
 set -eo pipefail
