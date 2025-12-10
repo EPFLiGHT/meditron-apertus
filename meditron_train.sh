@@ -28,6 +28,21 @@ if [ -z "$SLURM_JOB_ID" ]; then
     source .env
     set +o allexport
 
+
+    SRC_CFG="$PROJECT_ROOT/$CONFIG_ARG"
+    DEST_CFG="$PROJECT_ROOT/axolotl_config/config.yaml"
+
+    echo "Using template config: $SRC_CFG"
+    echo "Writing substituted config to: $DEST_CFG"
+
+    envsubst < "$SRC_CFG" > "$DEST_CFG"
+
+    export AXOLOTL_CONFIG_FILE="$DEST_CFG"
+
+    echo "🔧 Axolotl Config (after envsubst):"
+    cat $AXOLOTL_CONFIG_FILE
+
+
     SCRIPT_PATH="$0"
 
     # 3. Derive Job Name from Config Filename (e.g., 'apertus-8b' from 'config/apertus-8b.yaml')
@@ -83,36 +98,7 @@ export HF_HOME="$USER_STORAGE/hf"
 export WANDB_DIR="$USER_STORAGE/wandb"
 export WANDB_MODE="online"
 
-# Construct full path to config (Handling relative paths from Project Root)
-
-
-
-SRC_CFG="$PROJECT_ROOT/$CONFIG_ARG"
-DEST_CFG="$PROJECT_ROOT/axolotl_config/config.yaml"
-
-echo "Using template config: $SRC_CFG"
-echo "Writing substituted config to: $DEST_CFG"
-
-envsubst < "$SRC_CFG" > "$DEST_CFG"
-
 export AXOLOTL_CONFIG_FILE="$DEST_CFG"
-
-echo "🔧 Axolotl Config (after envsubst):"
-cat $AXOLOTL_CONFIG_FILE
-
-python3 - <<'PY'
-import yaml, os
-
-cfg_path = os.environ["AXOLOTL_CONFIG_FILE"]
-print("DEBUG: loading", cfg_path)
-
-with open(cfg_path, "r") as f:
-    cfg = yaml.safe_load(f)
-
-print("Top-level keys:", list(cfg.keys()))
-print("Has 'datasets':", "datasets" in cfg)
-print("Has 'pretraining_dataset':", "pretraining_dataset" in cfg)
-PY
 
 # Validate the resolved DeepSpeed config path early so rank 0 fails fast with a clear error.
 DEEPSPEED_CFG_PATH=$(python3 - <<'PY'
