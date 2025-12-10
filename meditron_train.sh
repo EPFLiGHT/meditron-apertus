@@ -101,6 +101,11 @@ export WANDB_MODE="online"
 
 export AXOLOTL_CONFIG_FILE="$PROJECT_ROOT/axolotl_config/config.yaml"
 
+# NCCL network quirks on CSCS: disable IB/libfabric path and fall back to sockets
+export NCCL_NET="Socket"
+export NCCL_IB_DISABLE=1
+export NCCL_DEBUG=${NCCL_DEBUG:-WARN}
+
 # Validate the resolved DeepSpeed config path early so rank 0 fails fast with a clear error.
 DEEPSPEED_CFG_PATH=$(python3 - <<'PY'
 import os, yaml
