@@ -24,12 +24,9 @@ if [ -z "$SLURM_JOB_ID" ]; then
     CONFIG_ARG="$1"
 
     # 2. Load Environment
-    if [ -f .env ]; then
-        set -a; source .env; set +a
-    else
-        echo "ERROR: .env file not found."
-        exit 1
-    fi
+    set -o allexport
+    source .env
+    set +o allexport
 
     SCRIPT_PATH="$0"
 
@@ -78,13 +75,9 @@ fi
 export PROJECT_ROOT=${SLURM_SUBMIT_DIR:-$(pwd)}
 echo "Project Root detected as: $PROJECT_ROOT"
 
-if [ -f "$PROJECT_ROOT/.env" ]; then
-    set -a; source "$PROJECT_ROOT/.env"; set +a
-    echo "Successfully loaded .env"
-else
-    echo "CRITICAL ERROR: .env file not found"
-    exit 1
-fi
+set -o allexport
+source .env
+set +o allexport
 
 export HF_HOME="$USER_STORAGE/hf"
 export WANDB_DIR="$USER_STORAGE/wandb"
@@ -92,9 +85,7 @@ export WANDB_MODE="online"
 
 # Construct full path to config (Handling relative paths from Project Root)
 
-set -o allexport
-source .env
-set +o allexport
+
 
 SRC_CFG="$PROJECT_ROOT/$CONFIG_ARG"
 DEST_CFG="$PROJECT_ROOT/axolotl_config/config.yaml"
