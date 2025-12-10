@@ -2,7 +2,7 @@
 #SBATCH --job-name meditron-default-job
 #SBATCH --output reports/R-%x.%j.out
 #SBATCH --error reports/R-%x.%j.err
-#SBATCH --nodes 16
+#SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
 #SBATCH --cpus-per-task 288
@@ -91,9 +91,20 @@ export WANDB_DIR="$USER_STORAGE/wandb"
 export WANDB_MODE="online"
 
 # Construct full path to config (Handling relative paths from Project Root)
+
 export AXOLOTL_CONFIG_FILE="$PROJECT_ROOT/$CONFIG_ARG"
 
-echo "🔧 Axolotl Config: $AXOLOTL_CONFIG_FILE"
+set -o allexport
+source .env
+set +o allexport
+
+envsubst < $AXOLOTL_CONFIG_FILE > axolotl_config/config.yaml
+
+echo "🔧 Axolotl Config: "
+
+export AXOLOTL_CONFIG_FILE="axolotl_config/config.yaml"
+
+cat $AXOLOTL_CONFIG_FILE
 
 # Validate the resolved DeepSpeed config path early so rank 0 fails fast with a clear error.
 DEEPSPEED_CFG_PATH=$(python3 - <<'PY'

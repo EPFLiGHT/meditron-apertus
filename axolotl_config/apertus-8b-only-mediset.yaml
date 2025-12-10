@@ -1,16 +1,16 @@
 # ========================
 # Model & Paths
 # ========================
-base_model: /capstor/store/cscs/swissai/a127/apertus/huggingface/Apertus8B
-output_dir: /capstor/store/cscs/swissai/a127/meditron/models/meditron-apertus-8b-only-mediset
+base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
+output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-only-mediset
 
-dataset_prepared_path: /capstor/store/cscs/swissai/a127/homes/theimer/prepared/only-mediset
+dataset_prepared_path: $USER_STORAGE/prepared/only-mediset
 load_prepared_dataset: true
 
 # ========================
 # Hardware & Speed
 # ========================
-deepspeed: /users/theimer/meditron-apertus/axolotl_config/deepspeed_zero_3.json
+deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_2.json
 bf16: auto
 tf32: true # SHOULD be true
 flash_attention: true
@@ -26,7 +26,7 @@ chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
   - &chat_config
-    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/meadow/meadow.jsonl
+    path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
     type: chat_template
     ds_type: json
     split: train
@@ -42,16 +42,16 @@ datasets:
       content: value
 
   - <<: *chat_config
-    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medqa/medqa.jsonl
+    path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
 
   - <<: *chat_config
-    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
+    path: $STORAGE_ROOT/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
 
   - <<: *chat_config
-    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/medmcqa/medmcqa.jsonl
+    path: $STORAGE_ROOT/meditron/datasets/masked/medmcqa/medmcqa.jsonl
 
   - <<: *chat_config
-    path: /capstor/store/cscs/swissai/a127/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
+    path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
 
 dataset_processes: 32
 shuffle_merged_datasets: true
@@ -104,8 +104,8 @@ eval_set_size: 0.01 # SHOULD be 0.01
 eval_table_size: null
 early_stopping_patience: null
 
-wandb_project: Meditron Apertus
-wandb_entity: alexs-team
+wandb_project: $WANDB_PROJECT
+wandb_entity: $WANDB_ENTITY
 wandb_name: meditron-apertus-8b-ablation-no-mediset
 wandb_log_model: null
 wandb_watch: null

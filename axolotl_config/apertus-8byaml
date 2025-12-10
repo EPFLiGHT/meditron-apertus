@@ -1,7 +1,7 @@
 # ========================
 # Model & Paths
 # ========================
-base_model: /capstor/store/cscs/swissai/a127/apertus/huggingface/Apertus70B
+base_model: $STORAGE_ROOT/apertus/huggingface/Apertus70B
 output_dir: /capstor/store/cscs/swissai/a127/meditron/models/Meditron-Apertus-8B-only-med-no-moove
 
 dataset_prepared_path: /capstor/store/cscs/swissai/a127/homes/theimer/prepared/Meditron-Apertus-8B-only-med-no-moove

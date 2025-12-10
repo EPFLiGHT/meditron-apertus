@@ -6,3 +6,4 @@ reports/
 .env
 setup.md
 script_login.bash
+axolotl_config/config.yaml
