@@ -25,6 +25,8 @@ strict: false
 chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
+
+  #MIRIAD
   - &chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
     type: chat_template
@@ -41,14 +43,12 @@ datasets:
       role: from
       content: value
 
+  #MEDISET
   #- <<: *chat_config
   #  path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
 
   #- <<: *chat_config
   #  path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
 
   #- <<: *chat_config
   #  path: $STORAGE_ROOT/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
@@ -59,12 +59,19 @@ datasets:
   #- <<: *chat_config
   #  path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
 
+  #MEDTEXT
+  - <<: *chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
+
+
   # -- Completion Datasets --
+  #GUIDELINES
   - path: $STORAGE_ROOT/meditron/datasets/pretrain/guidelines/guidelines.jsonl
     ds_type: json
     type: completion
     field: text
 
+  #PUBMED
   - path: $STORAGE_ROOT/meditron/datasets/pretrain/pubmed/pubmed_3B.jsonl
     ds_type: json
     type: completion
