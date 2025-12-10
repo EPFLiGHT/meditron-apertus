@@ -1,17 +1,8 @@
 set -o allexport
 source .env
 set +o allexport
-export AXOLOTL_CONFIG_FILE="axolotl_config/apertus-8b-only-mediset.yaml"
 
-envsubst < $AXOLOTL_CONFIG_FILE > axolotl_config/config.yaml
-
-echo "🔧 Axolotl Config: "
-
-export AXOLOTL_CONFIG_FILE="axolotl_config/config.yaml"
-
-cat $AXOLOTL_CONFIG_FILE
-
-SRC_CFG="$PROJECT_ROOT/$CONFIG_ARG"
+SRC_CFG="axolotl_config/apertus-8b-only-mediset.yaml"
 DEST_CFG="$PROJECT_ROOT/axolotl_config/config.yaml"
 
 echo "Using template config: $SRC_CFG"
