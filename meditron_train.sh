@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name meditron-default-job
-#SBATCH --output reports/R-%x.%j.out
+#SBATCH --output reports/R-%x.%j.err
 #SBATCH --error reports/R-%x.%j.err
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
@@ -103,7 +103,7 @@ envsubst < "$SRC_CFG" > "$DEST_CFG"
 export AXOLOTL_CONFIG_FILE="$DEST_CFG"
 
 echo "🔧 Axolotl Config (after envsubst):"
-cat "$AXOLOTL_CONFIG_FILE"
+cat $AXOLOTL_CONFIG_FILE
 
 python3 - <<'PY'
 import yaml, os
