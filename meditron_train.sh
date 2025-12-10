@@ -98,7 +98,7 @@ export HF_HOME="$USER_STORAGE/hf"
 export WANDB_DIR="$USER_STORAGE/wandb"
 export WANDB_MODE="online"
 
-export AXOLOTL_CONFIG_FILE="$DEST_CFG"
+export AXOLOTL_CONFIG_FILE="$PROJECT_ROOT/axolotl_config/config.yaml"
 
 # Validate the resolved DeepSpeed config path early so rank 0 fails fast with a clear error.
 DEEPSPEED_CFG_PATH=$(python3 - <<'PY'
