@@ -4,7 +4,7 @@
 base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
 output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-ablation-no-mediset
 
-dataset_prepared_path: $USER_STORAGE/prepared/ablation
+dataset_prepared_path: $USER_STORAGE/prepared/ablation-no-mediset
 load_prepared_dataset: true
 
 wandb_name: meditron-apertus-8b-ablation-no-mediset
@@ -88,14 +88,14 @@ shuffle_merged_datasets: true
 type: AutoModelForCausalLM
 tokenizer_type: AutoTokenizer
 sequence_len: 4096
-sample_packing: false # SHOULD be true
+sample_packing: true # SHOULD be true
 pad_to_sequence_len: true
 group_by_length: false
 train_on_inputs: false
 
 num_epochs: 1
-micro_batch_size: 1
-gradient_accumulation_steps: 16
+micro_batch_size: 2
+gradient_accumulation_steps: 32
 max_grad_norm: 1.0
 
 # ========================

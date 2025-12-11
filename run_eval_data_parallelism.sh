@@ -28,7 +28,7 @@ accelerate launch -m lm_eval --model hf \
   --verbosity DEBUG \
   --log_samples \
   --output_path $PROJECT_ROOT/eval_results/ \
-  --gen_kwargs '{"max_new_tokens": 2048}' \
+  --gen_kwargs '{"max_new_tokens": 4096}' \
   --apply_chat_template tokenizer_default 
 
 
