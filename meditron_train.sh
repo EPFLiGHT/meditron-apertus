@@ -2,7 +2,7 @@
 #SBATCH --job-name meditron-default-job
 #SBATCH --output reports/R-%x.%j.err
 #SBATCH --error reports/R-%x.%j.err
-#SBATCH --nodes 1
+#SBATCH --nodes 8
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
 #SBATCH --cpus-per-task 288
@@ -27,8 +27,6 @@ if [ -z "$SLURM_JOB_ID" ]; then
     set -o allexport
     source .env
     set +o allexport
-
-
 
     SRC_CFG="$PROJECT_ROOT/$CONFIG_ARG"
     DEST_CFG="$PROJECT_ROOT/axolotl_config/config.yaml"
@@ -95,42 +93,8 @@ set -o allexport
 source .env
 set +o allexport
 
-export HF_HOME="$USER_STORAGE/hf"
-export WANDB_DIR="$USER_STORAGE/wandb"
 export WANDB_MODE="online"
-
 export AXOLOTL_CONFIG_FILE="$PROJECT_ROOT/axolotl_config/config.yaml"
-
-# NCCL network quirks on CSCS: disable IB/libfabric path and fall back to sockets
-export NCCL_NET="Socket"
-export NCCL_IB_DISABLE=1
-export NCCL_DEBUG=${NCCL_DEBUG:-WARN}
-
-# Validate the resolved DeepSpeed config path early so rank 0 fails fast with a clear error.
-DEEPSPEED_CFG_PATH=$(python3 - <<'PY'
-import os, yaml
-cfg_path = os.environ["AXOLOTL_CONFIG_FILE"]
-with open(cfg_path, "r") as f:
-    cfg = yaml.safe_load(f)
-ds = cfg.get("deepspeed")
-if isinstance(ds, str):
-    print(os.path.expandvars(ds))
-PY
-)
-if [ -n "$DEEPSPEED_CFG_PATH" ]; then
-    echo "🔧 DeepSpeed Config (resolved): $DEEPSPEED_CFG_PATH"
-    if [ ! -f "$DEEPSPEED_CFG_PATH" ]; then
-        echo "CRITICAL ERROR: DeepSpeed config file not found at resolved path."
-        exit 1
-    fi
-fi
-
-# Caching locations
-export XDG_CACHE_HOME="$USER_STORAGE/cache"
-export TORCH_EXTENSIONS_DIR="$XDG_CACHE_HOME/torch_extensions"
-export PYTORCH_KERNEL_CACHE_PATH="$XDG_CACHE_HOME/torch_extensions"
-export TRITON_CACHE_DIR="$XDG_CACHE_HOME/triton"
-
 
 echo "START TIME: $(date)"
 set -eo pipefail

@@ -88,8 +88,8 @@ group_by_length: false
 train_on_inputs: false
 
 num_epochs: 1
-micro_batch_size: 2
-gradient_accumulation_steps: 32
+micro_batch_size: 4
+gradient_accumulation_steps: 8
 max_grad_norm: 1.0
 
 # ========================
@@ -104,7 +104,7 @@ cosine_min_lr_ratio: 0.1
 warmup_ratio: 0.03 #SHOULD have a warmup eg 0.3
 weight_decay: 0.05
 
-gradient_checkpointing: false
+gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: false
 
@@ -117,10 +117,10 @@ load_in_8bit: false
 # ========================
 # Logging & Evaluation
 # ========================
-logging_steps: 1
-saves_per_epoch: 4
-evals_per_epoch: 4 #SHOULD be 4
-eval_set_size: 0.01 # SHOULD be 0.01
+logging_steps: 10
+saves_per_epoch: 1
+evals_per_epoch: 1 #SHOULD be 4
+eval_set_size: 0.001 # SHOULD be 0.01
 eval_table_size: null
 early_stopping_patience: null
 

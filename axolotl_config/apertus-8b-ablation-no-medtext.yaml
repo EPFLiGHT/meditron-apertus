@@ -2,12 +2,12 @@
 # Model & Paths
 # ========================
 base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
-output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-ablation-no-miriad
+output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-ablation-no-medtext
 
-dataset_prepared_path: $USER_STORAGE/prepared/ablation-no-miriad
+dataset_prepared_path: $USER_STORAGE/prepared/ablation-no-medtext
 load_prepared_dataset: true
 
-wandb_name: meditron-apertus-8b-ablation-no-miriad
+wandb_name: meditron-apertus-8b-ablation-no-medtext
 
 # ========================
 # Hardware & Speed
@@ -28,9 +28,9 @@ chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
 
-  #MEDISET
+  #MIRIAD
   - &chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
+    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
     type: chat_template
     ds_type: json
     split: train
@@ -45,6 +45,10 @@ datasets:
       role: from
       content: value
 
+  #MEDISET
+  - <<: *chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
+
   - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
 
@@ -56,11 +60,6 @@ datasets:
 
   - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
-
-  #MEDTEXT
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
-
 
   # -- Completion Datasets --
   #GUIDELINES
@@ -119,7 +118,7 @@ load_in_8bit: false
 # ========================
 # Logging & Evaluation
 # ========================
-logging_steps: 1
+logging_steps: 10
 saves_per_epoch: 1
 evals_per_epoch: 1 #SHOULD be 4
 eval_set_size: 0.001 # SHOULD be 0.01
