@@ -96,11 +96,11 @@ trap 'FAILED_CMD=$BASH_COMMAND' ERR
 trap 'rc=$?; slack_notify "$rc" "compute"; exit "$rc"' EXIT
 set -eo pipefail
 
-cd "/users/theimer/lm-evaluation-harness"
+cd "$PROJECT_ROOT/../lm-evaluation-harness"
 pip install -e .
 pip install --upgrade --no-deps "datasets>=2.19.0,<3.0.0"
 
-cd "/users/theimer/lm-evaluation-harness/lm_eval/tasks"
+cd "$PROJECT_ROOT/../lm-evaluation-harness/lm_eval/tasks"
 
 export WORLD_SIZE=$SLURM_NNODES
 export MASTER_ADDR=$(hostname)
@@ -111,7 +111,11 @@ export TRITON_CACHE_DIR=$USER_STORAGE/triton
 export HF_DATASETS_CACHE=$HF_HOME/datasets
 export TRANSFORMERS_CACHE=$HF_HOME/transformers
 
+###############################################################
 export MODEL_PATH="/capstor/store/cscs/swissai/a127/apertus/huggingface/Apertus8B"
+###############################################################
+
+export CACHE_DIR="$PROJECT_ROOT/eval_results/cache"
 
 echo "WORLD_SIZE=$WORLD_SIZE"
 echo "MASTER_ADDR=$MASTER_ADDR"
@@ -126,11 +130,12 @@ accelerate launch -m lm_eval \
   --model_args "pretrained=$MODEL_PATH,dtype=bfloat16,attn_implementation=flash_attention_2,trust_remote_code=True" \
   --tasks pubmedqa_g,medmcqa_g,medqa_g \
   --batch_size 16 \
-  --verbosity DEBUG \
+  --verbosity INFO \
+  --use_cache "$CACHE_DIR" \
+  --cache_requests true \
   --log_samples \
   --output_path $PROJECT_ROOT/eval_results/ \
   --gen_kwargs '{"max_new_tokens": 1024}' \
-  --limit 100 \
   --apply_chat_template tokenizer_default 
 
 echo "END TIME: $(date)"

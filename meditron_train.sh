@@ -2,13 +2,16 @@
 #SBATCH --job-name meditron-default-job
 #SBATCH --output reports/R-%x.%j.err
 #SBATCH --error reports/R-%x.%j.err
-#SBATCH --nodes 8
+#SBATCH --nodes 16
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
 #SBATCH --cpus-per-task 288
 #SBATCH --time 11:59:59
 #SBATCH --environment ../.edf/apertus.toml
 #SBATCH -A a127
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/slack_helpers.sh"
 
 # =========================================================
 # PHASE 1: SUBMISSION LOGIC (Runs on Login Node)
@@ -23,9 +26,17 @@ if [ -z "$SLURM_JOB_ID" ]; then
     fi
     CONFIG_ARG="$1"
 
-    # 2. Load Environment
+    # 2. Load Environment (use absolute path so compute nodes can also source it)
     set -o allexport
-    source .env
+    if [ -f "$PROJECT_ROOT/.env" ]; then
+        source "$PROJECT_ROOT/.env"
+    elif [ -f .env ]; then
+        # fallback to local .env if present
+        source .env
+    else
+        echo "CRITICAL: .env not found at $PROJECT_ROOT/.env or ./env. Please ensure the .env file is present before submitting."
+        exit 1
+    fi
     set +o allexport
 
     SRC_CFG="$PROJECT_ROOT/$CONFIG_ARG"
@@ -38,8 +49,7 @@ if [ -z "$SLURM_JOB_ID" ]; then
 
     export AXOLOTL_CONFIG_FILE="$DEST_CFG"
 
-    echo "🔧 Axolotl Config (after envsubst):"
-    cat $AXOLOTL_CONFIG_FILE
+    
 
 
     SCRIPT_PATH="$0"
@@ -70,7 +80,8 @@ if [ -z "$SLURM_JOB_ID" ]; then
     echo "✅ Log found! Tailing (Ctrl+C to stop watching, job will continue)..."
     echo "-------------------------------------------------------------------"
     tail -f "$LOG_FILE"
-    
+    echo "🔧 Axolotl Config (after envsubst):"
+    cat $AXOLOTL_CONFIG_FILE
     exit 0
 fi
 
@@ -90,11 +101,58 @@ export PROJECT_ROOT=${SLURM_SUBMIT_DIR:-$(pwd)}
 echo "Project Root detected as: $PROJECT_ROOT"
 
 set -o allexport
-source .env
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    source "$PROJECT_ROOT/.env"
+elif [ -f .env ]; then
+    source .env
+else
+    echo "CRITICAL: .env not found at $PROJECT_ROOT/.env or ./env. Compute node cannot continue without environment variables."
+    echo "DEBUG: SLURM_SUBMIT_DIR=$SLURM_SUBMIT_DIR"
+    echo "DEBUG: pwd=$(pwd)"
+    echo "DEBUG: listing project root contents:"; ls -la "$PROJECT_ROOT" || true
+    exit 1
+fi
 set +o allexport
 
 export WANDB_MODE="online"
 export AXOLOTL_CONFIG_FILE="$PROJECT_ROOT/axolotl_config/config.yaml"
+
+# Ensure Slack helpers are loaded on worker even if earlier source failed
+if ! declare -F slack_notify >/dev/null 2>&1; then
+    if [ -f "$SCRIPT_DIR/slack_helpers.sh" ]; then
+        source "$SCRIPT_DIR/slack_helpers.sh"
+    elif [ -f "$PROJECT_ROOT/slack_helpers.sh" ]; then
+        source "$PROJECT_ROOT/slack_helpers.sh"
+    fi
+fi
+
+# Use per-job scratch to avoid NFS cache thrash and missing TMPDIR
+JOB_SCRATCH_BASE=${TMPDIR_BASE:-/tmp/theimer/axolotl-cache}
+mkdir -p "$JOB_SCRATCH_BASE" || true
+JOB_SCRATCH="$JOB_SCRATCH_BASE/${SLURM_JOB_ID:-nojob}"
+mkdir -p "$JOB_SCRATCH/tmp" "$JOB_SCRATCH/hf_cache" "$JOB_SCRATCH/hf_datasets" "$JOB_SCRATCH/triton" "$JOB_SCRATCH/wandb/wandb" || true
+export TMPDIR="$JOB_SCRATCH/tmp"
+export HF_HOME="$JOB_SCRATCH/hf_cache"
+export TRANSFORMERS_CACHE="$HF_HOME/transformers"
+export HF_DATASETS_CACHE="$JOB_SCRATCH/hf_datasets"
+export TRITON_CACHE_DIR="$JOB_SCRATCH/triton"
+export WANDB_DIR="$JOB_SCRATCH/wandb"
+
+# Quiet noisy DeepSpeed/Triton warnings on this cluster
+export DEEPSPEED_DISABLE_ASYNC_IO=1
+export DS_BUILD_SPARSE_ATTN=0
+
+export SLACK_INSECURE="${SLACK_INSECURE:-1}"
+START_TS="$(date +%s)"
+START_HUMAN="$(date -Is)"
+SLACK_JOB_ID="${SLURM_JOB_ID:-?}"
+FAILED_CMD=""
+trap 'FAILED_CMD=$BASH_COMMAND' ERR
+trap 'rc=$?; slack_notify "$rc"; exit "$rc"' EXIT
+
+# Bump file descriptor limit to avoid "too many open files" during dataset packing
+ulimit -n 65535 || echo "WARN: unable to raise open files limit"
+echo "Open files limit: $(ulimit -n)"
 
 echo "START TIME: $(date)"
 set -eo pipefail

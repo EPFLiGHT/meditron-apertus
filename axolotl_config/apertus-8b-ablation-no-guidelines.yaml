@@ -74,7 +74,7 @@ datasets:
     type: completion
     field: text
 
-dataset_processes: 32
+dataset_processes: 128
 shuffle_merged_datasets: true
 
 # ========================
@@ -83,7 +83,7 @@ shuffle_merged_datasets: true
 type: AutoModelForCausalLM
 tokenizer_type: AutoTokenizer
 sequence_len: 4096
-sample_packing: true # SHOULD be true
+sample_packing: false # disable during prepare to avoid multipack process pool FD explosion
 pad_to_sequence_len: true
 group_by_length: false
 train_on_inputs: false
@@ -127,3 +127,7 @@ early_stopping_patience: null
 
 wandb_project: $WANDB_PROJECT
 wandb_entity: $WANDB_ENTITY
+
+
+suppress_warnings: true
+disable_tqdm: false
