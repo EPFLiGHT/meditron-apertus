@@ -6,9 +6,11 @@
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
 #SBATCH --cpus-per-task 64
-#SBATCH --time 05:00:00
+#SBATCH --partition=debug
+#SBATCH --time=01:29:59
 #SBATCH --environment ../.edf/apertus.toml
 #SBATCH -A a127
+
 # Prefer the submit directory (available on workers) so we can find helpers after sbatch copies the script to /var/spool.
 SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 source "$SCRIPT_DIR/slack_helpers.sh"
@@ -19,7 +21,8 @@ source "$SCRIPT_DIR/slack_helpers.sh"
 
 if [ -z "$SLURM_JOB_ID" ]; then
     # Optional: first CLI arg = run name (for logs)
-    RUN_NAME="${1:-eval-apertus-8b}"
+    RUN_NAME="eval-apertus-8b"
+    MODEL_PATH="$1"
     SCRIPT_PATH="$0"
 
     # Load env (PROJECT_ROOT, USER_STORAGE, etc.)
@@ -31,8 +34,9 @@ if [ -z "$SLURM_JOB_ID" ]; then
 
     echo "This script is self-submitting..."
     echo "🏷️  Run Name:  $RUN_NAME"
+    echo "📁  Model Path: $MODEL_PATH"
 
-    SUBMISSION_OUTPUT=$(sbatch -J "$RUN_NAME" "$SCRIPT_PATH" "$RUN_NAME")
+    SUBMISSION_OUTPUT=$(sbatch -J "$RUN_NAME" "$SCRIPT_PATH" "$MODEL_PATH")
     JOB_ID=$(echo "$SUBMISSION_OUTPUT" | awk '{print $4}')
 
     echo "🚀 Submitted Job: $JOB_ID"
@@ -49,7 +53,6 @@ if [ -z "$SLURM_JOB_ID" ]; then
     tail -n 0 -F "$LOG_FILE" &
     TAIL_PID=$!
 
-    # Exit once the job leaves the queue so Slack can fire from the worker
     while squeue -j "$JOB_ID" >/dev/null 2>&1; do
         sleep 5
     done
@@ -68,6 +71,8 @@ fi
 # =========================================================
 
 RUN_NAME="$1"
+MODEL_PATH="$3"
+
 if [ -z "$RUN_NAME" ]; then
     RUN_NAME="eval-apertus-8b"
 fi
@@ -111,12 +116,9 @@ export TRITON_CACHE_DIR=$USER_STORAGE/triton
 export HF_DATASETS_CACHE=$HF_HOME/datasets
 export TRANSFORMERS_CACHE=$HF_HOME/transformers
 
-export MODEL_PATH="/capstor/store/cscs/swissai/a127/apertus/huggingface/Apertus8B"
-
 echo "WORLD_SIZE=$WORLD_SIZE"
 echo "MASTER_ADDR=$MASTER_ADDR"
 echo "MODEL_PATH=$MODEL_PATH"
-
 
 echo "START TIME: $(date)"
 set -x

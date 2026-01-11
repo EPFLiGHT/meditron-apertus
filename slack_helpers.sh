@@ -60,8 +60,10 @@ slack_notify() {
     fi
 
     text="[$status] ${RUN_NAME:-job} (job ${job_id}) on $(hostname)
-Start: ${START_HUMAN:-unknown}
-End:   ${end_human}
+Config: ${RUN_NAME:-unknown}
+Nodes:  ${node_count}
+Start:  ${START_HUMAN:-unknown}
+End:    ${end_human}
 Elapsed: $(format_duration "$elapsed")
 Exit code: ${rc}"
 

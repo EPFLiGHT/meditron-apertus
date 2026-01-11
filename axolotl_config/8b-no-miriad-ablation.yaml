@@ -1,0 +1,130 @@
+# ========================
+# Model & Paths
+# ========================
+base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
+output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-ablation-no-miriad
+
+dataset_prepared_path: $USER_STORAGE/prepared/ablation-no-miriad
+load_prepared_dataset: true
+
+wandb_name: meditron-apertus-8b-ablation-no-miriad
+
+# ========================
+# Hardware & Speed
+# ========================
+deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_3.json
+bf16: auto
+tf32: true # SHOULD be true
+flash_attention: true
+flash_attn_rms_norm: true
+flash_attn_fuse_qkv: false
+xformers_attention: null
+strict: false
+
+# ========================
+# Datasets
+# ========================
+chat_template: tokenizer_default
+datasets:
+  # -- Chat Datasets (Shared Config) --
+
+  #MEDISET
+  - &chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
+    type: chat_template
+    ds_type: json
+    split: train
+    field_messages: conversations
+    field_human: human
+    field_model: gpt
+    roles:
+      user: [human]
+      assistant: [gpt]
+      system: [system]
+    message_property_mappings:
+      role: from
+      content: value
+
+  - <<: *chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
+
+  - <<: *chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
+
+  - <<: *chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/medmcqa/medmcqa.jsonl
+
+  - <<: *chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
+
+  #MEDTEXT
+  - <<: *chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
+
+
+  # -- Completion Datasets --
+  #GUIDELINES
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/guidelines/guidelines.jsonl
+    ds_type: json
+    type: completion
+    field: text
+
+  #PUBMED
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/pubmed/pubmed_3B.jsonl
+    ds_type: json
+    type: completion
+    field: text
+
+dataset_processes: 128
+shuffle_merged_datasets: true
+
+# ========================
+# Training Hyperparameters
+# ========================
+type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+sequence_len: 4096
+sample_packing: false # SHOULD be true
+pad_to_sequence_len: true
+group_by_length: false
+train_on_inputs: false
+
+num_epochs: 1
+micro_batch_size: 4
+gradient_accumulation_steps: 8
+max_grad_norm: 1.0
+
+# ========================
+# Optimization
+# ========================
+optimizer: adamw_torch
+optim_args:
+  fused: true
+learning_rate: 1.0e-5
+lr_scheduler: cosine
+cosine_min_lr_ratio: 0.1
+warmup_ratio: 0.0 #SHOULD have a warmup eg 0.3
+weight_decay: 0.05
+
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+
+# ========================
+# Quantization (Disabled)
+# ========================
+load_in_4bit: false
+load_in_8bit: false
+
+# ========================
+# Logging & Evaluation
+# ========================
+logging_steps: 1
+saves_per_epoch: 4
+evals_per_epoch: 0 #SHOULD be 4
+eval_set_size: 0.00 # SHOULD be 0.01
+eval_table_size: null
+early_stopping_patience: null
+
+wandb_project: $WANDB_PROJECT
+wandb_entity: $WANDB_ENTITY

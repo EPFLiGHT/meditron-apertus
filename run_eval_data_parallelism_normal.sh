@@ -131,8 +131,6 @@ accelerate launch -m lm_eval \
   --tasks pubmedqa_g,medmcqa_g,medqa_g \
   --batch_size 16 \
   --verbosity INFO \
-  --use_cache "$CACHE_DIR" \
-  --cache_requests true \
   --log_samples \
   --output_path $PROJECT_ROOT/eval_results/ \
   --gen_kwargs '{"max_new_tokens": 1024}' \

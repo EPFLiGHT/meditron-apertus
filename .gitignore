@@ -8,3 +8,4 @@ eval_results/
 setup.md
 script_login.bash
 axolotl_config/config.yaml
+axolotl_config/generated
