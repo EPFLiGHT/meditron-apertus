@@ -12,7 +12,7 @@ wandb_name: Meditron-Apertus-8B-only-med-no-moove-xav
 # ========================
 # Hardware & Speed
 # ========================
-deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_3.json
+deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_2.json
 bf16: auto
 tf32: true # SHOULD be true
 flash_attention: true
@@ -81,13 +81,13 @@ shuffle_merged_datasets: true
 type: AutoModelForCausalLM
 tokenizer_type: AutoTokenizer
 sequence_len: 4096
-sample_packing: true # SHOULD be true
+sample_packing: false # SHOULD be true
 pad_to_sequence_len: true
 group_by_length: false
 train_on_inputs: false
 
 num_epochs: 1
-micro_batch_size: 4
+micro_batch_size: 16
 gradient_accumulation_steps: 8
 max_grad_norm: 1.0
 
