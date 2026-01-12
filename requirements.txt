@@ -1,0 +1,10 @@
+axolotl
+torch
+deepspeed
+transformers
+datasets>=2.19.0,<3.0.0
+accelerate
+wandb
+flash-attn
+triton
+sentencepiece
