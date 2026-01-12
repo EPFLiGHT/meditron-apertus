@@ -92,6 +92,7 @@ fi
 
 # 3. Define Scratch Paths (Do NOT export TMPDIR yet!)
 JOB_SCRATCH_BASE=${TMPDIR_BASE:-/tmp/axolotl-cache}
+mkdir -p $JOB_SCRATCH_BASE
 JOB_SCRATCH="$JOB_SCRATCH_BASE/${SLURM_JOB_ID:-nojob}"
 LOCAL_TMP="$JOB_SCRATCH/tmp"
 LOCAL_HF="$JOB_SCRATCH/hf_cache"
