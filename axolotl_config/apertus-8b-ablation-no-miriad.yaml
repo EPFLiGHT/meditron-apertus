@@ -12,7 +12,7 @@ wandb_name: meditron-apertus-8b-ablation-no-miriad
 # ========================
 # Hardware & Speed
 # ========================
-deepspeed: axolotl_config/deepspeed_zero_2.json
+deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_2.json
 bf16: auto
 tf32: true # SHOULD be true
 flash_attention: true

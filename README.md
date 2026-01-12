@@ -8,22 +8,7 @@ Axolotl configs and Slurm helpers for training/evaluating Apertus-based Meditron
 - Clone of the lm-evaluation-harness fork alongside this repo: `git clone https://github.com/Xkrilandar/lm-evaluation-harness`.
 
 ## Environment setup
-1. Create a `.env` in the repo root with your paths and tokens (do not commit secrets):
-   ```
-   # Paths
-   PROJECT_ROOT=/users/<user>/meditron-apertus
-   STORAGE_ROOT=/capstor/store/cscs/swissai/a127
-   USER_STORAGE=$STORAGE_ROOT/homes/<user>
-   ENV=/users/<user>/.edf/apertus.toml
-
-   # Auth
-   WANDB_API_KEY=<wandb_token>
-   HF_TOKEN=<hf_token>
-
-   # Logging
-   WANDB_PROJECT=<wandb-project>
-   WANDB_ENTITY=<wandb-entity>
-   ```
+1. Create a `.env` in the repo root with your paths and tokens (do not commit secrets), following the `.env.example` format:
 2. Log in to CSCS and load your environment (quick commands live in `setup.md` and `script_login.bash`).
 
 ## Training

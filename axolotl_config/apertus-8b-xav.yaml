@@ -2,19 +2,19 @@
 # Model & Paths
 # ========================
 base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
-output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-only-med-no-moove
+output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-only-med-no-moove-xav
 
-dataset_prepared_path: $USER_STORAGE/prepared/Meditron-Apertus-8B-only-med-no-moove
+dataset_prepared_path: $USER_STORAGE/prepared/Meditron-Apertus-8B-only-med-no-moove-xav
 load_prepared_dataset: true
 
-wandb_name: Meditron-Apertus-8B-only-med-no-moove
+wandb_name: Meditron-Apertus-8B-only-med-no-moove-xav
 
 # ========================
 # Hardware & Speed
 # ========================
 deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_3.json
 bf16: auto
-tf32: false # SHOULD be true
+tf32: true # SHOULD be true
 flash_attention: true
 flash_attn_rms_norm: true
 flash_attn_fuse_qkv: false
@@ -81,7 +81,7 @@ shuffle_merged_datasets: true
 type: AutoModelForCausalLM
 tokenizer_type: AutoTokenizer
 sequence_len: 4096
-sample_packing: false # SHOULD be true
+sample_packing: true # SHOULD be true
 pad_to_sequence_len: true
 group_by_length: false
 train_on_inputs: false
@@ -100,7 +100,7 @@ optim_args:
 learning_rate: 1.0e-5
 lr_scheduler: cosine
 cosine_min_lr_ratio: 0.1
-warmup_ratio: 0.0 #SHOULD have a warmup eg 0.3
+warmup_ratio: 0.03 #SHOULD have a warmup eg 0.3
 weight_decay: 0.05
 
 gradient_checkpointing: true
@@ -118,8 +118,8 @@ load_in_8bit: false
 # ========================
 logging_steps: 1
 saves_per_epoch: 1
-evals_per_epoch: 0 #SHOULD be 4
-eval_set_size: 0.0 # SHOULD be 0.01
+evals_per_epoch: 1 #SHOULD be 4
+eval_set_size: 0.001 # SHOULD be 0.01
 eval_table_size: null
 early_stopping_patience: null
 
