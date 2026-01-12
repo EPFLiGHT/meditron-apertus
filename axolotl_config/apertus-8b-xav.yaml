@@ -14,7 +14,7 @@ wandb_name: Meditron-Apertus-8B-only-med-no-moove-xav
 # ========================
 deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_2.json
 bf16: auto
-tf32: true # SHOULD be true
+tf32: false # SHOULD be true
 flash_attention: true
 flash_attn_rms_norm: true
 flash_attn_fuse_qkv: false
@@ -87,8 +87,8 @@ group_by_length: false
 train_on_inputs: false
 
 num_epochs: 1
-micro_batch_size: 8
-gradient_accumulation_steps: 16
+micro_batch_size: 4
+gradient_accumulation_steps: 32
 max_grad_norm: 1.0
 
 # ========================

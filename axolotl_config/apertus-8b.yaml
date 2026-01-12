@@ -81,7 +81,7 @@ shuffle_merged_datasets: true
 type: AutoModelForCausalLM
 tokenizer_type: AutoTokenizer
 sequence_len: 4096
-sample_packing: false # SHOULD be true
+sample_packing: true # SHOULD be true
 pad_to_sequence_len: true
 group_by_length: false
 train_on_inputs: false

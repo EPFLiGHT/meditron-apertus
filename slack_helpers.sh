@@ -14,6 +14,38 @@ format_duration() {
     printf "%02d:%02d:%02d" $((s/3600)) $(((s%3600)/60)) $((s%60))
 }
 
+_slack_find_errors_summary() {
+    local report_file="$1"
+    local reports_dir find_errors_path output summary
+
+    if [ -n "${FIND_ERRORS_SCRIPT:-}" ] && [ -x "$FIND_ERRORS_SCRIPT" ]; then
+        find_errors_path="$FIND_ERRORS_SCRIPT"
+    elif [ -n "${PROJECT_ROOT:-}" ] && [ -x "$PROJECT_ROOT/find_errors.sh" ]; then
+        find_errors_path="$PROJECT_ROOT/find_errors.sh"
+    else
+        find_errors_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/find_errors.sh"
+        if [ ! -x "$find_errors_path" ]; then
+            return 0
+        fi
+    fi
+
+    reports_dir="$(dirname "$report_file")"
+    if [ ! -d "$reports_dir" ]; then
+        return 0
+    fi
+
+    output="$("$find_errors_path" "$reports_dir" 2>/dev/null || true)"
+    summary="$(printf '%s\n' "$output" | awk -v target="$report_file" '
+        $0 == "== " target " ==" {found=1; next}
+        found && $0 == "" {exit}
+        found {print; exit}
+    ')"
+
+    if [ -n "$summary" ]; then
+        printf '%s' "$summary"
+    fi
+}
+
 _slack_build_payload() {
     local text="$1"
     local payload=""
@@ -44,7 +76,7 @@ PY
 slack_notify() {
     # First arg: exit code. Additional args ignored.
     local rc="$1"
-    local end_ts end_human elapsed status text payload job_id
+    local end_ts end_human elapsed status text payload job_id report_file reports_dir error_summary
 
     [ -n "${SLACK_WEBHOOK_URL:-}" ] || return 0
 
@@ -70,6 +102,25 @@ Exit code: ${rc}"
     if [ "$rc" -ne 0 ] && [ -n "${FAILED_CMD:-}" ]; then
         text="${text}
 Failed at: ${FAILED_CMD}"
+    fi
+
+    reports_dir="${SLACK_REPORTS_DIR:-${PROJECT_ROOT:-.}/reports}"
+    if [ -n "${SLACK_REPORT_FILE:-}" ]; then
+        report_file="$SLACK_REPORT_FILE"
+    elif [ -n "${RUN_NAME:-}" ]; then
+        report_file="${reports_dir}/R-${RUN_NAME}.${job_id}.err"
+    elif [ -n "${SLURM_JOB_NAME:-}" ]; then
+        report_file="${reports_dir}/R-${SLURM_JOB_NAME}.${job_id}.err"
+    else
+        report_file=""
+    fi
+
+    if [ -n "$report_file" ] && [ -f "$report_file" ]; then
+        error_summary="$(_slack_find_errors_summary "$report_file")"
+        if [ -n "$error_summary" ]; then
+            text="${text}
+Detected: ${error_summary}"
+        fi
     fi
 
     if [ -n "${SLACK_TAG:-}" ]; then

@@ -36,12 +36,14 @@ fi
 for report in "${sorted_reports[@]}"; do
   echo "== $report =="
 
-  if "${search_cmd[@]}" "cuda out of memory|cudnn_status_alloc_failed|out of memory" "$report"; then
+  if "${search_cmd[@]}" "cuda out of memory|cudnn_status_alloc_failed|cublas_status_alloc_failed|out of memory" "$report"; then
     :
   elif "${search_cmd[@]}" "$nan_pattern" "$report"; then
     :
   elif "${search_cmd[@]}" "too many open files|errno 24" "$report"; then
     :
+  elif "${search_cmd[@]}" "training finished|training completed" "$report"; then
+    echo "FINISHED"
   else
     echo "IDK"
   fi
