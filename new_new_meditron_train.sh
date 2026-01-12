@@ -91,7 +91,7 @@ if ! declare -F slack_notify >/dev/null 2>&1; then
 fi
 
 # 3. Define Scratch Paths (Do NOT export TMPDIR yet!)
-JOB_SCRATCH_BASE=${TMPDIR_BASE:-/tmp/theimer/axolotl-cache}
+JOB_SCRATCH_BASE=${TMPDIR_BASE:-/tmp/axolotl-cache}
 JOB_SCRATCH="$JOB_SCRATCH_BASE/${SLURM_JOB_ID:-nojob}"
 LOCAL_TMP="$JOB_SCRATCH/tmp"
 LOCAL_HF="$JOB_SCRATCH/hf_cache"
