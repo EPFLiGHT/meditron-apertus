@@ -12,7 +12,7 @@ wandb_name: meditron-apertus-8b-ablation-no-mediset
 # ========================
 # Hardware & Speed
 # ========================
-deepspeed: axolotl_config/deepspeed_zero_2.json
+deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_3.json
 bf16: auto
 tf32: true # SHOULD be true
 flash_attention: true
@@ -123,7 +123,7 @@ load_in_8bit: false
 # ========================
 # Logging & Evaluation
 # ========================
-logging_steps: 10
+logging_steps: 1
 saves_per_epoch: 1
 evals_per_epoch: 1 #SHOULD be 4
 eval_set_size: 0.001 # SHOULD be 0.01

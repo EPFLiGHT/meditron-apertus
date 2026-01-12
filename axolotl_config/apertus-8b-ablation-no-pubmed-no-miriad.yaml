@@ -2,12 +2,12 @@
 # Model & Paths
 # ========================
 base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
-output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-ablation-no-pubmed
+output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-ablation-no-pubmed-no-miriad
 
-dataset_prepared_path: $USER_STORAGE/prepared/ablation-no-pubmed
+dataset_prepared_path: $USER_STORAGE/prepared/ablation-no-pubmed-no-miriad
 load_prepared_dataset: true
 
-wandb_name: meditron-apertus-8b-ablation-no-pubmed
+wandb_name: meditron-apertus-8b-ablation-no-pubmed-no-miriad
 
 # ========================
 # Hardware & Speed
@@ -28,9 +28,9 @@ chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
 
-  #MIRIAD
+  #MEDTEXT
   - &chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
+    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
     type: chat_template
     ds_type: json
     split: train
@@ -60,11 +60,6 @@ datasets:
 
   - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
-
-  #MEDTEXT
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
-
 
   # -- Completion Datasets --
   #GUIDELINES

@@ -74,7 +74,7 @@ datasets:
     type: completion
     field: text
 
-dataset_processes: 128
+dataset_processes: 32
 shuffle_merged_datasets: true
 
 # ========================
@@ -83,7 +83,7 @@ shuffle_merged_datasets: true
 type: AutoModelForCausalLM
 tokenizer_type: AutoTokenizer
 sequence_len: 4096
-sample_packing: false # disable during prepare to avoid multipack process pool FD explosion
+sample_packing: true # disable during prepare to avoid multipack process pool FD explosion
 pad_to_sequence_len: true
 group_by_length: false
 train_on_inputs: false
@@ -118,7 +118,7 @@ load_in_8bit: false
 # ========================
 # Logging & Evaluation
 # ========================
-logging_steps: 10
+logging_steps: 1
 saves_per_epoch: 1
 evals_per_epoch: 1 #SHOULD be 4
 eval_set_size: 0.001 # SHOULD be 0.01
