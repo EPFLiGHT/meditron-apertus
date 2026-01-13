@@ -23,16 +23,25 @@ Axolotl configs and Slurm helpers for training/evaluating Apertus-based Meditron
   - tails `reports/R-<job>.<jobid>.err` once the log appears.
 - Adjust SBATCH resources at the top of `meditron_train.sh` if you need different GPUs/time.
 
-## Evaluation
-- Model parallel run (uses torchrun/parallelize):
+## Script usage
+- `meditron_train.sh`: submit a training run.
   ```
-  bash run_eval_model_parallelism.sh
+  bash train.sh axolotl_config/apertus-8b-only-mediset.yaml
   ```
-- Data parallel run (uses accelerate launch):
+- `meditron_eval.sh`: submit an eval run (data parallel via accelerate).
   ```
-  bash run_eval_data_parallelism.sh
+  bash eval.sh $STORAGE_ROOT/apertus/huggingface/Apertus8B
   ```
-Both scripts expect:
-- `SLURM_NNODES` set by the scheduler,
-- lm-evaluation-harness installed from your local clone (`git clone https://github.com/Xkrilandar/lm-evaluation-harness`),
-- `MODEL_PATH` pointing to the HF repo or local checkpoint you want to score.
+  Optional flags:
+  - `--debug` adds `--limit 100` and sets verbosity to DEBUG.
+  - `--model_parallelism` runs without accelerate and adds `parallelize=True` to model args (for the 70B)
+
+- `summarise_evals.sh`: scan eval reports and summarize eval outputs.
+  ```
+  bash summarise_evals.sh
+  ```
+- `find_training_errors.sh`: scan reports for training errors.
+  ```
+  bash find_training_errors.sh
+  ```
+- `slack_helpers.sh`: helper functions for other scripts (not meant to be run directly).

@@ -23,6 +23,18 @@ if [ -z "$SLURM_JOB_ID" ]; then
     # Optional: first CLI arg = run name (for logs)
     RUN_NAME="eval-apertus-8b"
     MODEL_PATH="$1"
+    DEBUG_FLAG=0
+    MODEL_PARALLELISM=0
+    if [ "${2:-}" = "--debug" ]; then
+        DEBUG_FLAG=1
+    elif [ "${2:-}" = "--model_parallelism" ]; then
+        MODEL_PARALLELISM=1
+    fi
+    if [ "${3:-}" = "--debug" ]; then
+        DEBUG_FLAG=1
+    elif [ "${3:-}" = "--model_parallelism" ]; then
+        MODEL_PARALLELISM=1
+    fi
     SCRIPT_PATH="$0"
 
     # Load env (PROJECT_ROOT, USER_STORAGE, etc.)
@@ -40,11 +52,18 @@ if [ -z "$SLURM_JOB_ID" ]; then
     export TMPDIR="${SLURM_TMPDIR:-/tmp}"
 
     if [ -z "$MODEL_PATH" ]; then
-        echo "Usage: $0 /path/to/model"
+        echo "Usage: $0 /path/to/model [--debug] [--model_parallelism]"
         exit 1
     fi
 
-    SUBMISSION_OUTPUT=$(sbatch -J "$RUN_NAME" "$SCRIPT_PATH" "$RUN_NAME" "$MODEL_PATH")
+    SBATCH_ARGS=("$RUN_NAME" "$MODEL_PATH")
+    if [ "$DEBUG_FLAG" -eq 1 ]; then
+        SBATCH_ARGS+=("--debug")
+    fi
+    if [ "$MODEL_PARALLELISM" -eq 1 ]; then
+        SBATCH_ARGS+=("--model_parallelism")
+    fi
+    SUBMISSION_OUTPUT=$(sbatch -J "$RUN_NAME" "$SCRIPT_PATH" "${SBATCH_ARGS[@]}")
     JOB_ID=$(echo "$SUBMISSION_OUTPUT" | awk '{print $4}')
 
     echo "🚀 Submitted Job: $JOB_ID"
@@ -80,6 +99,19 @@ fi
 
 RUN_NAME="$1"
 MODEL_PATH="$2"
+DEBUG_FLAG=0
+MODEL_PARALLELISM=0
+if [ "$MODEL_PATH" = "--debug" ]; then
+    DEBUG_FLAG=1
+    MODEL_PATH=""
+elif [ "$MODEL_PATH" = "--model_parallelism" ]; then
+    MODEL_PARALLELISM=1
+    MODEL_PATH=""
+elif [ "${3:-}" = "--debug" ]; then
+    DEBUG_FLAG=1
+elif [ "${3:-}" = "--model_parallelism" ]; then
+    MODEL_PARALLELISM=1
+fi
 
 # Back-compat: allow a single positional arg to mean MODEL_PATH.
 if [ -z "$MODEL_PATH" ] && [ -n "$RUN_NAME" ]; then
@@ -156,17 +188,45 @@ JOB_TAG="${SLURM_JOB_ID:-nojob}"
 OUTPUT_DIR="$PROJECT_ROOT/eval_results/${RUN_TAG}_${SAFE_MODEL_TAG}_${JOB_TAG}"
 mkdir -p "$OUTPUT_DIR"
 
-accelerate launch --num_processes 4 --num_machines 1 --mixed_precision bf16 --dynamo_backend no -m lm_eval \
+VERBOSITY_LEVEL="INFO"
+LIMIT_ARGS=()
+if [ "$DEBUG_FLAG" -eq 1 ]; then
+    VERBOSITY_LEVEL="DEBUG"
+    LIMIT_ARGS=(--limit 100)
+fi
+
+MODEL_ARGS="pretrained=$MODEL_PATH,dtype=bfloat16,attn_implementation=flash_attention_2,trust_remote_code=True"
+if [ "$MODEL_PARALLELISM" -eq 1 ]; then
+    MODEL_ARGS="$MODEL_ARGS,parallelize=True"
+fi
+
+if [ "$MODEL_PARALLELISM" -eq 1 ]; then
+python3 -m lm_eval \
   --model hf \
-  --model_args "pretrained=$MODEL_PATH,dtype=bfloat16,attn_implementation=flash_attention_2,trust_remote_code=True" \
+  --model_args "$MODEL_ARGS" \
   --tasks pubmedqa_g,medmcqa_g,medqa_g \
   --batch_size 16 \
-  --verbosity INFO \
+  --verbosity "$VERBOSITY_LEVEL" \
   --log_samples \
   --output_path "$OUTPUT_DIR" \
   --include_path "$LM_EVAL_INCLUDE_PATH" \
   --gen_kwargs max_new_tokens=1024 \
+  "${LIMIT_ARGS[@]}" \
   --apply_chat_template tokenizer_default 
+else
+accelerate launch --num_processes 4 --num_machines 1 --mixed_precision bf16 --dynamo_backend no -m lm_eval \
+  --model hf \
+  --model_args "$MODEL_ARGS" \
+  --tasks pubmedqa_g,medmcqa_g,medqa_g \
+  --batch_size 16 \
+  --verbosity "$VERBOSITY_LEVEL" \
+  --log_samples \
+  --output_path "$OUTPUT_DIR" \
+  --include_path "$LM_EVAL_INCLUDE_PATH" \
+  --gen_kwargs max_new_tokens=1024 \
+  "${LIMIT_ARGS[@]}" \
+  --apply_chat_template tokenizer_default 
+fi
 
 echo "END TIME: $(date)"
 
