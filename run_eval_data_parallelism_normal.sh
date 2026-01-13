@@ -6,9 +6,11 @@
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
 #SBATCH --cpus-per-task 64
-#SBATCH --time 05:00:00
+#SBATCH --partition=normal
+#SBATCH --time=05:00:00
 #SBATCH --environment ../.edf/apertus.toml
 #SBATCH -A a127
+
 # Prefer the submit directory (available on workers) so we can find helpers after sbatch copies the script to /var/spool.
 SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 source "$SCRIPT_DIR/slack_helpers.sh"
@@ -19,7 +21,8 @@ source "$SCRIPT_DIR/slack_helpers.sh"
 
 if [ -z "$SLURM_JOB_ID" ]; then
     # Optional: first CLI arg = run name (for logs)
-    RUN_NAME="${1:-eval-apertus-8b}"
+    RUN_NAME="eval-apertus-8b"
+    MODEL_PATH="$1"
     SCRIPT_PATH="$0"
 
     # Load env (PROJECT_ROOT, USER_STORAGE, etc.)
@@ -31,8 +34,17 @@ if [ -z "$SLURM_JOB_ID" ]; then
 
     echo "This script is self-submitting..."
     echo "🏷️  Run Name:  $RUN_NAME"
+    echo "📁  Model Path: $MODEL_PATH"
 
-    SUBMISSION_OUTPUT=$(sbatch -J "$RUN_NAME" "$SCRIPT_PATH" "$RUN_NAME")
+    # Avoid exporting a job-scoped TMPDIR before SLURM_JOB_ID exists.
+    export TMPDIR="${SLURM_TMPDIR:-/tmp}"
+
+    if [ -z "$MODEL_PATH" ]; then
+        echo "Usage: $0 /path/to/model"
+        exit 1
+    fi
+
+    SUBMISSION_OUTPUT=$(sbatch -J "$RUN_NAME" "$SCRIPT_PATH" "$RUN_NAME" "$MODEL_PATH")
     JOB_ID=$(echo "$SUBMISSION_OUTPUT" | awk '{print $4}')
 
     echo "🚀 Submitted Job: $JOB_ID"
@@ -49,7 +61,6 @@ if [ -z "$SLURM_JOB_ID" ]; then
     tail -n 0 -F "$LOG_FILE" &
     TAIL_PID=$!
 
-    # Exit once the job leaves the queue so Slack can fire from the worker
     while squeue -j "$JOB_ID" >/dev/null 2>&1; do
         sleep 5
     done
@@ -68,8 +79,24 @@ fi
 # =========================================================
 
 RUN_NAME="$1"
+MODEL_PATH="$2"
+
+# Back-compat: allow a single positional arg to mean MODEL_PATH.
+if [ -z "$MODEL_PATH" ] && [ -n "$RUN_NAME" ]; then
+    MODEL_PATH="$RUN_NAME"
+    RUN_NAME=""
+fi
+
 if [ -z "$RUN_NAME" ]; then
     RUN_NAME="eval-apertus-8b"
+fi
+if [ -z "$MODEL_PATH" ]; then
+    echo "MODEL_PATH is empty; pass it as the first argument."
+    exit 1
+fi
+if [ ! -e "$MODEL_PATH" ] && [ -n "$STORAGE_ROOT" ] && [ -e "$STORAGE_ROOT$MODEL_PATH" ]; then
+    MODEL_PATH="$STORAGE_ROOT$MODEL_PATH"
+    echo "Resolved MODEL_PATH to: $MODEL_PATH"
 fi
 
 # 1. Project root & env
@@ -83,6 +110,10 @@ if [ -f .env ]; then
     source .env
     set +o allexport
 fi
+
+# Ensure TMPDIR exists to avoid Slurm temp directory errors.
+export TMPDIR="${SLURM_TMPDIR:-/tmp}"
+mkdir -p "$TMPDIR"
 
 # Default to insecure curl for Slack if the node lacks CA bundle; can override by exporting SLACK_INSECURE=0
 export SLACK_INSECURE="${SLACK_INSECURE:-1}"
@@ -109,31 +140,32 @@ export HF_HOME=$USER_STORAGE/hf
 export HF_DATASETS_TRUST_REMOTE_CODE=1
 export TRITON_CACHE_DIR=$USER_STORAGE/triton
 export HF_DATASETS_CACHE=$HF_HOME/datasets
-export TRANSFORMERS_CACHE=$HF_HOME/transformers
-
-###############################################################
-export MODEL_PATH="/capstor/store/cscs/swissai/a127/apertus/huggingface/Apertus8B"
-###############################################################
-
-export CACHE_DIR="$PROJECT_ROOT/eval_results/cache"
+unset TRANSFORMERS_CACHE
+export LM_EVAL_INCLUDE_PATH="/users/theimer/lm-evaluation-harness/lm_eval/tasks"
 
 echo "WORLD_SIZE=$WORLD_SIZE"
 echo "MASTER_ADDR=$MASTER_ADDR"
 echo "MODEL_PATH=$MODEL_PATH"
 
-
 echo "START TIME: $(date)"
 set -x
 
-accelerate launch -m lm_eval \
+SAFE_MODEL_TAG="$(basename "$MODEL_PATH" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '_' | sed 's/^_//;s/_$//')"
+RUN_TAG="${RUN_NAME:-eval}"
+JOB_TAG="${SLURM_JOB_ID:-nojob}"
+OUTPUT_DIR="$PROJECT_ROOT/eval_results/${RUN_TAG}_${SAFE_MODEL_TAG}_${JOB_TAG}"
+mkdir -p "$OUTPUT_DIR"
+
+accelerate launch --num_processes 4 --num_machines 1 --mixed_precision bf16 --dynamo_backend no -m lm_eval \
   --model hf \
   --model_args "pretrained=$MODEL_PATH,dtype=bfloat16,attn_implementation=flash_attention_2,trust_remote_code=True" \
   --tasks pubmedqa_g,medmcqa_g,medqa_g \
   --batch_size 16 \
   --verbosity INFO \
   --log_samples \
-  --output_path $PROJECT_ROOT/eval_results/ \
-  --gen_kwargs '{"max_new_tokens": 1024}' \
+  --output_path "$OUTPUT_DIR" \
+  --include_path "$LM_EVAL_INCLUDE_PATH" \
+  --gen_kwargs max_new_tokens=1024 \
   --apply_chat_template tokenizer_default 
 
 echo "END TIME: $(date)"

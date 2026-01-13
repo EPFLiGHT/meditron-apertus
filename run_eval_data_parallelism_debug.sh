@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
 #SBATCH --cpus-per-task 64
-#SBATCH --partition=debug
+#SBATCH --partition=normal
 #SBATCH --time=01:29:59
 #SBATCH --environment ../.edf/apertus.toml
 #SBATCH -A a127
@@ -36,7 +36,15 @@ if [ -z "$SLURM_JOB_ID" ]; then
     echo "🏷️  Run Name:  $RUN_NAME"
     echo "📁  Model Path: $MODEL_PATH"
 
-    SUBMISSION_OUTPUT=$(sbatch -J "$RUN_NAME" "$SCRIPT_PATH" "$MODEL_PATH")
+    # Avoid exporting a job-scoped TMPDIR before SLURM_JOB_ID exists.
+    export TMPDIR="${SLURM_TMPDIR:-/tmp}"
+
+    if [ -z "$MODEL_PATH" ]; then
+        echo "Usage: $0 /path/to/model"
+        exit 1
+    fi
+
+    SUBMISSION_OUTPUT=$(sbatch -J "$RUN_NAME" "$SCRIPT_PATH" "$RUN_NAME" "$MODEL_PATH")
     JOB_ID=$(echo "$SUBMISSION_OUTPUT" | awk '{print $4}')
 
     echo "🚀 Submitted Job: $JOB_ID"
@@ -71,10 +79,24 @@ fi
 # =========================================================
 
 RUN_NAME="$1"
-MODEL_PATH="$3"
+MODEL_PATH="$2"
+
+# Back-compat: allow a single positional arg to mean MODEL_PATH.
+if [ -z "$MODEL_PATH" ] && [ -n "$RUN_NAME" ]; then
+    MODEL_PATH="$RUN_NAME"
+    RUN_NAME=""
+fi
 
 if [ -z "$RUN_NAME" ]; then
     RUN_NAME="eval-apertus-8b"
+fi
+if [ -z "$MODEL_PATH" ]; then
+    echo "MODEL_PATH is empty; pass it as the first argument."
+    exit 1
+fi
+if [ ! -e "$MODEL_PATH" ] && [ -n "$STORAGE_ROOT" ] && [ -e "$STORAGE_ROOT$MODEL_PATH" ]; then
+    MODEL_PATH="$STORAGE_ROOT$MODEL_PATH"
+    echo "Resolved MODEL_PATH to: $MODEL_PATH"
 fi
 
 # 1. Project root & env
@@ -88,6 +110,10 @@ if [ -f .env ]; then
     source .env
     set +o allexport
 fi
+
+# Ensure TMPDIR exists to avoid Slurm temp directory errors.
+export TMPDIR="${SLURM_TMPDIR:-/tmp}"
+mkdir -p "$TMPDIR"
 
 # Default to insecure curl for Slack if the node lacks CA bundle; can override by exporting SLACK_INSECURE=0
 export SLACK_INSECURE="${SLACK_INSECURE:-1}"
@@ -114,7 +140,8 @@ export HF_HOME=$USER_STORAGE/hf
 export HF_DATASETS_TRUST_REMOTE_CODE=1
 export TRITON_CACHE_DIR=$USER_STORAGE/triton
 export HF_DATASETS_CACHE=$HF_HOME/datasets
-export TRANSFORMERS_CACHE=$HF_HOME/transformers
+unset TRANSFORMERS_CACHE
+export LM_EVAL_INCLUDE_PATH="/users/theimer/lm-evaluation-harness/lm_eval/tasks"
 
 echo "WORLD_SIZE=$WORLD_SIZE"
 echo "MASTER_ADDR=$MASTER_ADDR"
@@ -129,10 +156,7 @@ JOB_TAG="${SLURM_JOB_ID:-nojob}"
 OUTPUT_DIR="$PROJECT_ROOT/eval_results/${RUN_TAG}_${SAFE_MODEL_TAG}_${JOB_TAG}"
 mkdir -p "$OUTPUT_DIR"
 
-SAMPLE_MARKER="$OUTPUT_DIR/.samples.marker"
-touch "$SAMPLE_MARKER"
-
-accelerate launch -m lm_eval \
+accelerate launch --num_processes 4 --num_machines 1 --mixed_precision bf16 --dynamo_backend no -m lm_eval \
   --model hf \
   --model_args "pretrained=$MODEL_PATH,dtype=bfloat16,attn_implementation=flash_attention_2,trust_remote_code=True" \
   --tasks pubmedqa_g,medmcqa_g,medqa_g \
@@ -140,29 +164,10 @@ accelerate launch -m lm_eval \
   --verbosity DEBUG \
   --log_samples \
   --output_path "$OUTPUT_DIR" \
-  --gen_kwargs '{"max_new_tokens": 1024}' \
+  --include_path "$LM_EVAL_INCLUDE_PATH" \
+  --gen_kwargs max_new_tokens=1024 \
   --limit 100 \
   --apply_chat_template tokenizer_default 
-
-set +x
-echo "== SAMPLE OUTPUTS =="
-sample_files=()
-while IFS= read -r sample_file; do
-    sample_files+=("$sample_file")
-done < <(find "$OUTPUT_DIR" -type f -name "samples_*.jsonl" -newer "$SAMPLE_MARKER" | sort)
-
-if [ "${#sample_files[@]}" -eq 0 ]; then
-    echo "No sample files found."
-else
-    for sample_file in "${sample_files[@]}"; do
-        echo "-- $sample_file --"
-        cat "$sample_file"
-        echo
-    done
-fi
-
-rm -f "$SAMPLE_MARKER"
-set -x
 
 echo "END TIME: $(date)"
 
