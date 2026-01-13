@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name meditron-eval
-#SBATCH --output reports/R-%x.%j.err
-#SBATCH --error reports/R-%x.%j.err
+#SBATCH --output eval_reports/R-%x.%j.err
+#SBATCH --error eval_reports/R-%x.%j.err
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
@@ -37,7 +37,7 @@ if [ -z "$SLURM_JOB_ID" ]; then
 
     echo "🚀 Submitted Job: $JOB_ID"
 
-    LOG_FILE="$PROJECT_ROOT/reports/R-${RUN_NAME}.${JOB_ID}.err"
+    LOG_FILE="$PROJECT_ROOT/eval_reports/R-${RUN_NAME}.${JOB_ID}.err"
     echo "Waiting for log file: $LOG_FILE"
 
     while [ ! -f "$LOG_FILE" ]; do

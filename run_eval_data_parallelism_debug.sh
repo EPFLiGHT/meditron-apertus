@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name meditron-eval
-#SBATCH --output reports/R-%x.%j.err
-#SBATCH --error reports/R-%x.%j.err
+#SBATCH --output eval_reports/R-%x.%j.err
+#SBATCH --error eval_reports/R-%x.%j.err
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
@@ -41,7 +41,7 @@ if [ -z "$SLURM_JOB_ID" ]; then
 
     echo "🚀 Submitted Job: $JOB_ID"
 
-    LOG_FILE="$PROJECT_ROOT/reports/R-${RUN_NAME}.${JOB_ID}.err"
+    LOG_FILE="$PROJECT_ROOT/eval_reports/R-${RUN_NAME}.${JOB_ID}.err"
     echo "Waiting for log file: $LOG_FILE"
 
     while [ ! -f "$LOG_FILE" ]; do
@@ -123,6 +123,15 @@ echo "MODEL_PATH=$MODEL_PATH"
 echo "START TIME: $(date)"
 set -x
 
+SAFE_MODEL_TAG="$(basename "$MODEL_PATH" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_.-' '_' | sed 's/^_//;s/_$//')"
+RUN_TAG="${RUN_NAME:-eval}"
+JOB_TAG="${SLURM_JOB_ID:-nojob}"
+OUTPUT_DIR="$PROJECT_ROOT/eval_results/${RUN_TAG}_${SAFE_MODEL_TAG}_${JOB_TAG}"
+mkdir -p "$OUTPUT_DIR"
+
+SAMPLE_MARKER="$OUTPUT_DIR/.samples.marker"
+touch "$SAMPLE_MARKER"
+
 accelerate launch -m lm_eval \
   --model hf \
   --model_args "pretrained=$MODEL_PATH,dtype=bfloat16,attn_implementation=flash_attention_2,trust_remote_code=True" \
@@ -130,10 +139,30 @@ accelerate launch -m lm_eval \
   --batch_size 16 \
   --verbosity DEBUG \
   --log_samples \
-  --output_path $PROJECT_ROOT/eval_results/ \
+  --output_path "$OUTPUT_DIR" \
   --gen_kwargs '{"max_new_tokens": 1024}' \
   --limit 100 \
   --apply_chat_template tokenizer_default 
+
+set +x
+echo "== SAMPLE OUTPUTS =="
+sample_files=()
+while IFS= read -r sample_file; do
+    sample_files+=("$sample_file")
+done < <(find "$OUTPUT_DIR" -type f -name "samples_*.jsonl" -newer "$SAMPLE_MARKER" | sort)
+
+if [ "${#sample_files[@]}" -eq 0 ]; then
+    echo "No sample files found."
+else
+    for sample_file in "${sample_files[@]}"; do
+        echo "-- $sample_file --"
+        cat "$sample_file"
+        echo
+    done
+fi
+
+rm -f "$SAMPLE_MARKER"
+set -x
 
 echo "END TIME: $(date)"
 

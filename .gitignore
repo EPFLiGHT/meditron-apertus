@@ -1,6 +1,7 @@
 axolotl/
 reports/
 eval_results/
+eval_reports/
 *.out
 *.err
 *.log

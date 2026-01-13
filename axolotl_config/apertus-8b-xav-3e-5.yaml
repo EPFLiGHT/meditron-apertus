@@ -2,12 +2,12 @@
 # Model & Paths
 # ========================
 base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
-output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-only-med-no-moove
+output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-only-med-no-moove-xav-3e-5
 
-dataset_prepared_path: $USER_STORAGE/prepared/Meditron-Apertus-8B-only-med-no-moove
+dataset_prepared_path: $USER_STORAGE/prepared/Meditron-Apertus-8B-only-med-no-moove-xav-3e-5
 load_prepared_dataset: true
 
-wandb_name: Meditron-Apertus-8B-only-med-no-moove
+wandb_name: Meditron-Apertus-8B-only-med-no-moove-xav-3e-5
 
 # ========================
 # Hardware & Speed
@@ -97,7 +97,7 @@ max_grad_norm: 1.0
 optimizer: adamw_torch
 optim_args:
   fused: true
-learning_rate: 1.0e-5
+learning_rate: 3.0e-5
 lr_scheduler: cosine
 cosine_min_lr_ratio: 0.1
 warmup_ratio: 0.03 #SHOULD have a warmup eg 0.3

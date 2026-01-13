@@ -76,9 +76,12 @@ PY
 slack_notify() {
     # First arg: exit code. Additional args ignored.
     local rc="$1"
-    local end_ts end_human elapsed status text payload job_id report_file reports_dir error_summary
+    local end_ts end_human elapsed status text payload job_id report_file reports_dir error_summary send_slack
 
-    [ -n "${SLACK_WEBHOOK_URL:-}" ] || return 0
+    send_slack=0
+    if [ -n "${SLACK_WEBHOOK_URL:-}" ]; then
+        send_slack=1
+    fi
 
     end_ts="$(date +%s)"
     end_human="$(date -Is)"
@@ -125,6 +128,13 @@ Detected: ${error_summary}"
 
     if [ -n "${SLACK_TAG:-}" ]; then
         text="${SLACK_TAG} ${text}"
+    fi
+
+    echo "== SLACK MESSAGE =="
+    printf '%s\n' "$text"
+
+    if [ "$send_slack" -ne 1 ]; then
+        return 0
     fi
 
     payload="$(_slack_build_payload "$text")"
