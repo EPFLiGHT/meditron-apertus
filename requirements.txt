@@ -2,11 +2,12 @@ axolotl
 torch
 deepspeed
 transformers
-datasets>=2.19.0,<3.0.0
-accelerate
-wandb
+# datasets>=2.19.0,<3.0.0
+datasets
 flash-attn
+accelerate
 triton
+wandb
 sentencepiece
-ai2-olmo
-cut-cross-entropy[transformers] @ git+https://github.com/axolotl-ai-cloud/ml-cross-entropy.git@318b7e2
+# ai2-olmo==0.5.1
+# cut-cross-entropy[transformers] @ git+https://github.com/axolotl-ai-cloud/ml-cross-entropy.git@318b7e2

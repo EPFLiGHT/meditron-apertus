@@ -11,7 +11,7 @@ trust_remote_code: true
 dataset_prepared_path: $USER_STORAGE/prepared/only-mediset
 load_prepared_dataset: true
 
-wandb_name: meditron-olmo-8b-only-mediset
+wandb_name: meditron-olmo3-8b-only-mediset
 
 # ========================
 # Hardware & Speed
