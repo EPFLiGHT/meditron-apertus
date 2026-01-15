@@ -6,14 +6,14 @@
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
 #SBATCH --cpus-per-task 64
-#SBATCH --partition=normal
-#SBATCH --time=05:00:00
+#SBATCH --partition=debug
+#SBATCH --time=1:29:59
 #SBATCH --environment ../.edf/apertus.toml
 #SBATCH -A a127
 
 # Prefer the submit directory (available on workers) so we can find helpers after sbatch copies the script to /var/spool.
 SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
-source "$SCRIPT_DIR/slack_helpers.sh"
+source "$SCRIPT_DIR/scripts/slack_helpers.sh"
 
 # =========================================================
 # PHASE 1: SUBMISSION LOGIC (Runs on Login Node)

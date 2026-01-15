@@ -1,7 +1,8 @@
 axolotl/
-reports/
-eval_results/
-eval_reports/
+reports/*
+eval_results/*
+old_eval_results/
+eval_reports/*
 *.out
 *.err
 *.log
@@ -10,3 +11,4 @@ setup.md
 script_login.bash
 axolotl_config/config.yaml
 axolotl_config/generated
+scripts/python/

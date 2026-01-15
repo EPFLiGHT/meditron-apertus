@@ -2,12 +2,12 @@
 # Model & Paths
 # ========================
 base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
-output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-ablation-no-miriad
+output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-ablation-no-mediset-no-miriad-new
 
-dataset_prepared_path: $USER_STORAGE/prepared/ablation-no-miriad
+dataset_prepared_path: $USER_STORAGE/prepared/ablation-no-mediset-no-miriad
 load_prepared_dataset: true
 
-wandb_name: meditron-apertus-8b-ablation-no-miriad
+wandb_name: meditron-apertus-8b-ablation-no-mediset-no-miriad-new
 
 # ========================
 # Hardware & Speed
@@ -28,9 +28,9 @@ chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
 
-  #MEDISET
+  #MEDTEXT
   - &chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
+    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
     type: chat_template
     ds_type: json
     split: train
@@ -45,22 +45,21 @@ datasets:
       role: from
       content: value
 
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
+  #MEDISET
+  #- <<: *chat_config
+  #  path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
 
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
+  #- <<: *chat_config
+  #  path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
 
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medmcqa/medmcqa.jsonl
+  #- <<: *chat_config
+  #  path: $STORAGE_ROOT/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
 
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
+  #- <<: *chat_config
+  #  path: $STORAGE_ROOT/meditron/datasets/masked/medmcqa/medmcqa.jsonl
 
-  #MEDTEXT
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
-
+  #- <<: *chat_config
+  #  path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
 
   # -- Completion Datasets --
   #GUIDELINES
@@ -75,7 +74,7 @@ datasets:
     type: completion
     field: text
 
-dataset_processes: 128
+dataset_processes: 32
 shuffle_merged_datasets: true
 
 # ========================
@@ -84,7 +83,7 @@ shuffle_merged_datasets: true
 type: AutoModelForCausalLM
 tokenizer_type: AutoTokenizer
 sequence_len: 4096
-sample_packing: false # SHOULD be true
+sample_packing: true # SHOULD be true
 pad_to_sequence_len: true
 group_by_length: false
 train_on_inputs: false
@@ -103,7 +102,7 @@ optim_args:
 learning_rate: 1.0e-5
 lr_scheduler: cosine
 cosine_min_lr_ratio: 0.1
-warmup_ratio: 0.0 #SHOULD have a warmup eg 0.3
+warmup_ratio: 0.03 #SHOULD have a warmup eg 0.3
 weight_decay: 0.05
 
 gradient_checkpointing: true
@@ -120,9 +119,9 @@ load_in_8bit: false
 # Logging & Evaluation
 # ========================
 logging_steps: 1
-saves_per_epoch: 4
-evals_per_epoch: 0 #SHOULD be 4
-eval_set_size: 0.00 # SHOULD be 0.01
+saves_per_epoch: 1
+evals_per_epoch: 1 #SHOULD be 4
+eval_set_size: 0.001 # SHOULD be 0.01
 eval_table_size: null
 early_stopping_patience: null
 

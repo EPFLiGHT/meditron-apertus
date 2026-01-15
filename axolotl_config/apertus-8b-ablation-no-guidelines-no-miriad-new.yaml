@@ -2,19 +2,19 @@
 # Model & Paths
 # ========================
 base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
-output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-only-med-no-moove-xav
+output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-ablation-no-guidelines-no-miriad-new
 
-dataset_prepared_path: $USER_STORAGE/prepared/Meditron-Apertus-8B-xav
+dataset_prepared_path: $USER_STORAGE/prepared/ablation-no-guidelines-no-miriad
 load_prepared_dataset: true
 
-wandb_name: Meditron-Apertus-8B-only-med-no-moove-xav
+wandb_name: meditron-apertus-8b-ablation-no-guidelines-no-miriad-new
 
 # ========================
 # Hardware & Speed
 # ========================
-deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_2.json
+deepspeed: axolotl_config/deepspeed_zero_2.json
 bf16: auto
-tf32: false # SHOULD be true
+tf32: true # SHOULD be true
 flash_attention: true
 flash_attn_rms_norm: true
 flash_attn_fuse_qkv: false
@@ -27,54 +27,30 @@ strict: false
 chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
+
+  #MEDTEXT
   - &chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl.part-00001.jsonl
-    ds_type: json
+    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
     type: chat_template
+    ds_type: json
+    split: train
     field_messages: conversations
+    field_human: human
+    field_model: gpt
+    roles:
+      user: [human]
+      assistant: [gpt]
+      system: [system]
     message_property_mappings:
       role: from
       content: value
-    roles:
-      system: [system]
-      user: [user, human]
-      assistant: [assistant, gpt]
 
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl.part-00002.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl.part-00003.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl.part-00004.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl.part-00005.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl.part-00006.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl.part-00007.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl.part-00008.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl.part-00009.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl.part-00010.jsonl
-
+  #MEDISET
   - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
 
   - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
 
   - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
@@ -86,17 +62,14 @@ datasets:
     path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
 
   # -- Completion Datasets --
-  - path: $STORAGE_ROOT/meditron/datasets/pretrain/guidelines/guidelines.jsonl
-    ds_type: json
-    type: completion
-    field: text
 
+  #PUBMED
   - path: $STORAGE_ROOT/meditron/datasets/pretrain/pubmed/pubmed_3B.jsonl
     ds_type: json
     type: completion
     field: text
 
-dataset_processes: 128
+dataset_processes: 32
 shuffle_merged_datasets: true
 
 # ========================
@@ -105,7 +78,7 @@ shuffle_merged_datasets: true
 type: AutoModelForCausalLM
 tokenizer_type: AutoTokenizer
 sequence_len: 4096
-sample_packing: true # SHOULD be true
+sample_packing: true # disable during prepare to avoid multipack process pool FD explosion
 pad_to_sequence_len: true
 group_by_length: false
 train_on_inputs: false
@@ -149,3 +122,7 @@ early_stopping_patience: null
 
 wandb_project: $WANDB_PROJECT
 wandb_entity: $WANDB_ENTITY
+
+
+suppress_warnings: true
+disable_tqdm: false

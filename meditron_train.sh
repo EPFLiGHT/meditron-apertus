@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name meditron-default-job
-#SBATCH --output reports/R-%x.%j.err
-#SBATCH --error reports/R-%x.%j.err
+#SBATCH --output train_reports/R-%x.%j.err
+#SBATCH --error train_reports/R-%x.%j.err
 #SBATCH --nodes 32
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
 #SBATCH --cpus-per-task 288
-#SBATCH --time 11:59:59
+#SBATCH --time 1:59:59
 #SBATCH --environment ../.edf/apertus.toml
 #SBATCH -A a127
 
@@ -42,7 +42,7 @@ if [ -z "$SLURM_JOB_ID" ]; then
     JOB_ID=$(echo "$SUBMISSION_OUTPUT" | awk '{print $4}')
     echo "🚀 Submitted Job: $JOB_ID"
 
-    LOG_FILE="$PROJECT_ROOT/reports/R-${JOB_NAME}.${JOB_ID}.err"
+    LOG_FILE="$PROJECT_ROOT/train_reports/R-${JOB_NAME}.${JOB_ID}.err"
     while [ ! -f "$LOG_FILE" ]; do sleep 1; done
     tail -n 0 -F "$LOG_FILE" &
     TAIL_PID=$!
@@ -85,13 +85,13 @@ set +o allexport
 # 2. Fix Slack Helper Import
 # Using absolute path ensures workers find the script despite spooling
 if ! declare -F slack_notify >/dev/null 2>&1; then
-    if [ -f "$PROJECT_ROOT/slack_helpers.sh" ]; then
-        source "$PROJECT_ROOT/slack_helpers.sh"
+    if [ -f "$PROJECT_ROOT/scripts/slack_helpers.sh" ]; then
+        source "$PROJECT_ROOT/scripts/slack_helpers.sh"
     fi
 fi
 
 # 3. Define Scratch Paths (Do NOT export TMPDIR yet!)
-JOB_SCRATCH_BASE=${TMPDIR_BASE:-/tmp/axolotl-cache}
+JOB_SCRATCH_BASE=${TMPDIR_BASE:-/iopsstor/scratch/cscs/theimer/axolotl-cache}
 mkdir -p $JOB_SCRATCH_BASE
 JOB_SCRATCH="$JOB_SCRATCH_BASE/${SLURM_JOB_ID:-nojob}"
 LOCAL_TMP="$JOB_SCRATCH/tmp"
@@ -104,7 +104,8 @@ LOCAL_WANDB="$JOB_SCRATCH/wandb"
 # Added: -A and --reservation to match the main job parameters
 echo "🛠️  Pre-creating scratch directories on all $SLURM_NNODES nodes..."
 
-export TMPDIR=/tmp
+export TMPDIR=/iopsstor/scratch/cscs/theimer/tmp
+mkdir -p "$TMPDIR"
 srun --ntasks-per-node=1 \
      --cpus-per-task=1 \
      --nodes=$SLURM_NNODES \
@@ -155,7 +156,7 @@ FULL_CMD="$LAUNCHER -m axolotl.cli.train $AXOLOTL_CONFIG_FILE"
 echo "🚀 Launching Axolotl on $SLURM_NNODES nodes..."
 echo "Command: $FULL_CMD"
 
-LOG_FILE="$PROJECT_ROOT/reports/R-${SLURM_JOB_NAME}.${SLURM_JOB_ID}.err"
+LOG_FILE="$PROJECT_ROOT/train_reports/R-${SLURM_JOB_NAME}.${SLURM_JOB_ID}.err"
 
 srun \
     --cpus-per-task $SLURM_CPUS_PER_TASK \

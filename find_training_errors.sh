@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPORTS_DIR="${1:-reports}"
+REPORTS_DIR="${1:-train_reports}"
 
 if [ ! -d "$REPORTS_DIR" ]; then
   echo "Reports directory not found: $REPORTS_DIR" >&2
@@ -33,6 +33,34 @@ else
   nan_pattern="\\<nan\\>|loss is nan|nan loss"
 fi
 
+print_elapsed() {
+  local report="$1"
+  local elapsed=""
+  if command -v rg >/dev/null 2>&1; then
+    elapsed=$(
+      {
+        rg -i "elapsed" "$report" 2>/dev/null \
+          | rg -o -e '[0-9]{2}:[0-9]{2}:[0-9]{2}' 2>/dev/null \
+          | tail -n1
+      } || true
+    )
+  else
+    elapsed=$(
+      {
+        grep -i "elapsed" "$report" 2>/dev/null \
+          | grep -E -o '[0-9]{2}:[0-9]{2}:[0-9]{2}' 2>/dev/null \
+          | tail -n1
+      } || true
+    )
+  fi
+
+  if [ -n "$elapsed" ]; then
+    echo "Elapsed: $elapsed"
+  else
+    echo "Elapsed: n/a"
+  fi
+}
+
 for report in "${sorted_reports[@]}"; do
   echo "== $report =="
 
@@ -48,5 +76,6 @@ for report in "${sorted_reports[@]}"; do
     echo "IDK"
   fi
 
+  print_elapsed "$report"
   echo
 done
