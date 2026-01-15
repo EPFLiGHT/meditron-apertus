@@ -11,7 +11,7 @@ PATH_TO_DOCKERFILE="$PATH_TO_SCRIPT/Dockerfile"
 ACTION=$1
 
 IMAGE_NAME="meditron-apertus"
-EXPORT_PATH="/capstor/store/cscs/swissai/a127/meditron/docker/new_axolotl.sqsh"
+EXPORT_PATH="/capstor/store/cscs/swissai/a127/meditron/docker/new_new_axolotl.sqsh"
 
 if [ "$ACTION" == "build" ]; then
     podman build -t $IMAGE_NAME -f "$PATH_TO_DOCKERFILE" ../
