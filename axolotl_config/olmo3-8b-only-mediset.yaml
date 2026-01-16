@@ -59,6 +59,9 @@ datasets:
   - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
 
+  - <<: *chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
+
 dataset_processes: 32
 shuffle_merged_datasets: true
 
