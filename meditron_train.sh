@@ -99,6 +99,7 @@ LOCAL_HF="$JOB_SCRATCH/hf_cache"
 LOCAL_DS="$JOB_SCRATCH/hf_datasets"
 LOCAL_TRITON="$JOB_SCRATCH/triton"
 LOCAL_WANDB="$JOB_SCRATCH/wandb"
+mkdir -p "$LOCAL_TMP" "$LOCAL_HF" "$LOCAL_DS" "$LOCAL_TRITON" "$LOCAL_WANDB"
 
 # 4. PRE-FLIGHT CHECK: Create Directories on ALL Nodes
 # Added: -A and --reservation to match the main job parameters

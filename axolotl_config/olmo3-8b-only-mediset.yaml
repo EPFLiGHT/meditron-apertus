@@ -76,9 +76,9 @@ pad_to_sequence_len: true
 group_by_length: false
 train_on_inputs: false
 
-num_epochs: 4
+num_epochs: 1
 micro_batch_size: 1
-gradient_accumulation_steps: 4
+gradient_accumulation_steps: 8
 max_grad_norm: 1.0
 
 # ========================
@@ -107,8 +107,8 @@ load_in_8bit: false
 # Logging & Evaluation
 # ========================
 logging_steps: 1
-saves_per_epoch: 1
-evals_per_epoch: 1 #SHOULD be 4
+saves_per_epoch: 4
+evals_per_epoch: 4 #SHOULD be 4
 eval_set_size: 0.01 # SHOULD be 0.01
 eval_table_size: null
 early_stopping_patience: null
