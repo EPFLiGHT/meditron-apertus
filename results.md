@@ -11,7 +11,7 @@ Results:
 |medqa_g   |Yaml   |strict-final-answer|     0|exact_match|↑  |0.5098|±  |0.0140|
 |pubmedqa_g|Yaml   |strict-final-answer|     0|exact_match|↑  |0.7600|±  |0.0191|
 
-#### High Batch size: 32 nodes --> batch size 4 * 8 * 32 = 1024:
+#### High Batch size: 32 nodes --> batch size 4 * 8 * 4 * 32 = 4096:
 
 ### Main finetune (Meditron-Apertus)
 bash meditron_eval.sh $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-only-med-no-moove
@@ -125,7 +125,7 @@ Or epoch 3, the model start to overfit and perfs are way worse.
 
 
 ### Lower batch size (256 VS 1024) Leads to highly deteriorated performance for the ablations.
-#### 8 nodes --> batch size 4 * 8 * 8 = 256:
+#### 8 nodes --> batch size 4 * 8 * 8 * 4 = 1024:
 bash meditron_eval.sh $STORAGE_ROOT/meditron/models/meditron-apertus-8b-ablation-no-miriad
 Status: COMPLETED
 Results:

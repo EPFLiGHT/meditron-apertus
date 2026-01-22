@@ -6,9 +6,11 @@
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
 #SBATCH --cpus-per-task 288
-#SBATCH --time 1:59:59
-#SBATCH --environment ../.edf/apertus.toml
+#SBATCH --time 1:29:59
+#SBATCH --environment ../.edf/new_axolotl.toml
 #SBATCH -A a127
+
+ulimit -c 0 # prevents core dumps
 
 # =========================================================
 # PHASE 1: SUBMISSION LOGIC (Runs on Login Node)

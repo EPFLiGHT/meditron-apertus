@@ -2,19 +2,19 @@
 # Model & Paths
 # ========================
 base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
-output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-only-med-no-moove-xav
+output_dir: $STORAGE_ROOT/meditron/models/meditron-apertus-8b-only-miriad-higher-accumulation
 
-dataset_prepared_path: $USER_STORAGE/prepared/Meditron-Apertus-8B-xav
+dataset_prepared_path: $USER_STORAGE/prepared/only-miriad-23
 load_prepared_dataset: true
 
-wandb_name: Meditron-Apertus-8B-only-med-no-moove-xav
+wandb_name: meditron-apertus-8b-only-miriad-higher-accumulation
 
 # ========================
 # Hardware & Speed
 # ========================
 deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_2.json
 bf16: auto
-tf32: false # SHOULD be true
+tf32: true # SHOULD be true
 flash_attention: true
 flash_attn_rms_norm: true
 flash_attn_fuse_qkv: false
@@ -27,6 +27,8 @@ strict: false
 chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
+
+  #MIRIAD
   - &chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
     ds_type: json
@@ -39,35 +41,6 @@ datasets:
       system: [system]
       user: [user, human]
       assistant: [assistant, gpt]
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/medmcqa/medmcqa.jsonl
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
-
-  # -- Completion Datasets --
-  - path: $STORAGE_ROOT/meditron/datasets/pretrain/guidelines/guidelines.jsonl
-    ds_type: json
-    type: completion
-    field: text
-
-  - path: $STORAGE_ROOT/meditron/datasets/pretrain/pubmed/pubmed_3B.jsonl
-    ds_type: json
-    type: completion
-    field: text
 
 dataset_processes: 128
 shuffle_merged_datasets: true
@@ -85,7 +58,7 @@ train_on_inputs: false
 
 num_epochs: 1
 micro_batch_size: 4
-gradient_accumulation_steps: 8
+gradient_accumulation_steps: 16
 max_grad_norm: 1.0
 
 # ========================

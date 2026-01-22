@@ -2,19 +2,19 @@
 # Model & Paths
 # ========================
 base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
-output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-only-med-no-moove-xav
+output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-xav-trad-5e-6
 
-dataset_prepared_path: $USER_STORAGE/prepared/Meditron-Apertus-8B-xav
+dataset_prepared_path: $USER_STORAGE/prepared/meditron-apertus-xav-trad
 load_prepared_dataset: true
 
-wandb_name: Meditron-Apertus-8B-only-med-no-moove-xav
+wandb_name: Meditron-Apertus-8B-xav-trad-5e-6
 
 # ========================
 # Hardware & Speed
 # ========================
 deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_2.json
 bf16: auto
-tf32: false # SHOULD be true
+tf32: false 
 flash_attention: true
 flash_attn_rms_norm: true
 flash_attn_fuse_qkv: false
@@ -69,7 +69,7 @@ datasets:
     type: completion
     field: text
 
-dataset_processes: 128
+dataset_processes: 64
 shuffle_merged_datasets: true
 
 # ========================
@@ -77,15 +77,15 @@ shuffle_merged_datasets: true
 # ========================
 type: AutoModelForCausalLM
 tokenizer_type: AutoTokenizer
-sequence_len: 4096
+sequence_len: 8192
 sample_packing: true # SHOULD be true
 pad_to_sequence_len: true
 group_by_length: false
 train_on_inputs: false
 
 num_epochs: 1
-micro_batch_size: 4
-gradient_accumulation_steps: 8
+micro_batch_size: 2
+gradient_accumulation_steps: 16
 max_grad_norm: 1.0
 
 # ========================
@@ -94,10 +94,10 @@ max_grad_norm: 1.0
 optimizer: adamw_torch
 optim_args:
   fused: true
-learning_rate: 1.0e-5
+learning_rate: 5.0e-6
 lr_scheduler: cosine
 cosine_min_lr_ratio: 0.1
-warmup_ratio: 0.03 #SHOULD have a warmup eg 0.3
+warmup_ratio: 0.03 
 weight_decay: 0.05
 
 gradient_checkpointing: true
@@ -115,8 +115,8 @@ load_in_8bit: false
 # ========================
 logging_steps: 1
 saves_per_epoch: 1
-evals_per_epoch: 1 #SHOULD be 4
-eval_set_size: 0.001 # SHOULD be 0.01
+evals_per_epoch: 1 
+eval_set_size: 0.001 
 eval_table_size: null
 early_stopping_patience: null
 
