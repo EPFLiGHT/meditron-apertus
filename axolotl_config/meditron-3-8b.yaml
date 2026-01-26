@@ -1,0 +1,225 @@
+# ========================
+# Model & Paths
+# ========================
+base_model: $STORAGE_ROOT/models/Meta-Llama-3.1-8B-Instruct/
+
+output_dir: $STORAGE_ROOT/meditron/models/Meditron-8B-3.1B-shuffled/
+dataset_prepared_path: $USER_STORAGE/prepared/Meditron-8B-3.1B-shuffled
+wandb_name: meditron-3.1-8B-shuffled
+
+# ========================
+# Hardware & Speed
+# ========================
+deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_2.json
+bf16: auto
+tf32: false
+flash_attention: true
+flash_attn_rms_norm: true
+flash_attn_fuse_qkv: false
+xformers_attention: null
+strict: false
+
+# ========================
+# Datasets
+# ========================
+datasets:
+  # -- Chat Datasets (Shared Config) --
+  - path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
+    type: sharegpt
+    ds_type: json
+    split: train
+    conversation: llama-3 
+    field_human: human 
+    field_model: gpt 
+    
+    roles:
+      input: [human,system] 
+      output: [gpt]
+
+  - path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
+    type: sharegpt
+    ds_type: json
+    split: train
+    conversation: llama-3 
+    field_human: human 
+    field_model: gpt 
+    
+    roles:
+      input: [human,system] 
+      output: [gpt]
+
+  - path: $STORAGE_ROOT/meditron/datasets/masked/medtext/medtext.jsonl
+    type: sharegpt
+    ds_type: json
+    split: train
+    conversation: llama-3 
+    field_human: human 
+    field_model: gpt 
+    
+    roles:
+      input: [human,system] 
+      output: [gpt]
+
+  - path: $STORAGE_ROOT/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
+    type: sharegpt
+    ds_type: json
+    split: train
+    conversation: llama-3 
+    field_human: human 
+    field_model: gpt 
+    
+    roles:
+      input: [human,system] 
+      output: [gpt]
+
+  - path: $STORAGE_ROOT/meditron/datasets/masked/mmlu/mmlu.jsonl
+    type: sharegpt
+    ds_type: json
+    split: train
+    conversation: llama-3 
+    field_human: human 
+    field_model: gpt 
+    
+    roles:
+      input: [human,system] 
+      output: [gpt]
+
+  - path: $STORAGE_ROOT/meditron/datasets/masked/medmcqa/medmcqa.jsonl
+    type: sharegpt
+    ds_type: json
+    split: train
+    conversation: llama-3 
+    field_human: human 
+    field_model: gpt 
+    
+    roles:
+      input: [human,system] 
+      output: [gpt]
+
+  - path: $STORAGE_ROOT/meditron/datasets/masked/ultrachat/ultrachat.jsonl
+    type: sharegpt
+    ds_type: json
+    split: train
+    conversation: llama-3 
+    field_human: human 
+    field_model: gpt 
+    
+    roles:
+      input: [human,system] 
+      output: [gpt]
+
+  - path: $STORAGE_ROOT/meditron/datasets/masked/up2date_qa/up2date_qa.jsonl
+    type: sharegpt
+    ds_type: json
+    split: train
+    conversation: llama-3 
+    field_human: human 
+    field_model: gpt 
+    
+    roles:
+      input: [human,system] 
+      output: [gpt]
+
+  - path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
+    type: sharegpt
+    ds_type: json
+    split: train
+    conversation: llama-3 
+    field_human: human 
+    field_model: gpt 
+    
+    roles:
+      input: [human,system] 
+      output: [gpt]
+
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/amboss_article/amboss_article.jsonl
+    ds_type: json
+    type: completion 
+    field: text
+
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/cord19/cord_19.jsonl
+    ds_type: json
+    type: completion 
+    field: text
+
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/guidelines/guidelines.jsonl
+    ds_type: json
+    type: completion 
+    field: text
+
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/pubmed/pubmed_3B.jsonl
+    ds_type: json
+    type: completion 
+    field: text
+    
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/redpajama_400M/replay_400M.jsonl
+    ds_type: json
+    type: completion 
+    field: text
+    
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/textbooks_surya/textbooks.jsonl
+    ds_type: json
+    type: completion 
+    field: text
+  
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/up2date_pre/up2date_pre.jsonl
+    ds_type: json
+    type: completion 
+    field: text
+
+dataset_processes: 64
+shuffle_merged_datasets: true
+
+# ========================
+# Training Hyperparameters
+# ========================
+type: LlamaForCausalLM
+tokenizer_type: AutoTokenizer
+sequence_len: 8192
+sample_packing: true
+pad_to_sequence_len: true
+group_by_length: false
+train_on_inputs: false
+
+num_epochs: 1
+micro_batch_size: 4
+gradient_accumulation_steps: 1
+max_grad_norm: 1.0
+
+# ========================
+# Optimization
+# ========================
+optimizer: adamw_torch
+optim_args:
+  fused: true
+learning_rate: 3.0e-5
+lr_scheduler: cosine
+cosine_min_lr_ratio: 0.1
+warmup_ratio: 0.0
+weight_decay: 0.05
+
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+
+# ========================
+# Quantization (Disabled)
+# ========================
+load_in_4bit: false
+load_in_8bit: false
+
+# ========================
+# Logging & Evaluation
+# ========================
+logging_steps: 1
+saves_per_epoch: 1
+evals_per_epoch: 0
+eval_set_size: 0.0
+eval_table_size: null
+early_stopping_patience: null
+
+wandb_project: Meditron DDX
+wandb_entity: alexs-team
+
+special_tokens:
+  pad_token: <|end_of_text|>

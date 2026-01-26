@@ -1,24 +1,25 @@
 # ========================
 # Model & Paths
 # ========================
-base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
+base_model: $STORAGE_ROOT/apertus/huggingface/swiss-ai/Apertus-8B-Instruct-2509
 
-output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-xav-trad-5e-6
+output_dir: $STORAGE_ROOT/meditron/models/apertus-8b-xav-fix-chat-template-1e-5-32x2x16
 
-dataset_prepared_path: $USER_STORAGE/prepared/meditron-apertus-xav-trad
+dataset_prepared_path: $USER_STORAGE/prepared/apertus-8b-xav-fix-chat-template-1e-5-32x2x16
 load_prepared_dataset: true
 
-wandb_name: Meditron-Apertus-8B-xav-trad-5e-6
+wandb_name: apertus-8b-xav-fix-chat-template-1e-5-32x2x16
 
 # ========================
 # Hardware & Speed
 # ========================
 deepspeed: $PROJECT_ROOT/axolotl_config/deepspeed_zero_2.json
 bf16: auto
-tf32: false
+tf32: false 
 flash_attention: true
 flash_attn_rms_norm: true
 flash_attn_fuse_qkv: false
+#attn_implementation: flash_attention_3
 xformers_attention: null
 strict: false
 
@@ -79,7 +80,7 @@ shuffle_merged_datasets: true
 type: AutoModelForCausalLM
 tokenizer_type: AutoTokenizer
 sequence_len: 8192
-sample_packing: true
+sample_packing: true # SHOULD be true
 pad_to_sequence_len: true
 group_by_length: false
 train_on_inputs: false
@@ -95,7 +96,7 @@ max_grad_norm: 1.0
 optimizer: adamw_torch
 optim_args:
   fused: true
-learning_rate: 5.0e-6
+learning_rate: 1.0e-5
 lr_scheduler: cosine
 cosine_min_lr_ratio: 0.1
 warmup_ratio: 0.03 

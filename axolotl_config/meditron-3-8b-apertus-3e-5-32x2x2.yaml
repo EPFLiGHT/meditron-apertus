@@ -1,14 +1,14 @@
 # ========================
 # Model & Paths
 # ========================
-base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
+base_model: $STORAGE_ROOT/apertus/huggingface/swiss-ai/Apertus-8B-Instruct-2509
 
-output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-xav-trad-5e-6
+output_dir: $STORAGE_ROOT/meditron/models/meditron-3-8b-apertus-3e-5-32x2x2
 
-dataset_prepared_path: $USER_STORAGE/prepared/meditron-apertus-xav-trad
+dataset_prepared_path: $USER_STORAGE/prepared/meditron-3-8b-apertus-3e-5-32x2x2
 load_prepared_dataset: true
 
-wandb_name: Meditron-Apertus-8B-xav-trad-5e-6
+wandb_name: meditron-3-8b-apertus-3e-5-32x2x2
 
 # ========================
 # Hardware & Speed
@@ -25,11 +25,10 @@ strict: false
 # ========================
 # Datasets
 # ========================
-chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
   - &chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
+    path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
     ds_type: json
     type: chat_template
     field_messages: conversations
@@ -42,9 +41,6 @@ datasets:
       assistant: [assistant, gpt]
 
   - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
-
-  - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
 
   - <<: *chat_config
@@ -54,20 +50,53 @@ datasets:
     path: $STORAGE_ROOT/meditron/datasets/masked/pubmedqa/pubmedqa.jsonl
 
   - <<: *chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/mmlu/mmlu.jsonl
+
+  - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/medmcqa/medmcqa.jsonl
+
+  - <<: *chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/ultrachat/ultrachat.jsonl
+
+  - <<: *chat_config
+    path: $STORAGE_ROOT/meditron/datasets/masked/up2date_qa/up2date_qa.jsonl
 
   - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
 
-  # -- Completion Datasets --
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/amboss_article/amboss_article.jsonl
+    ds_type: json
+    type: completion 
+    field: text
+
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/cord19/cord_19.jsonl
+    ds_type: json
+    type: completion 
+    field: text
+
   - path: $STORAGE_ROOT/meditron/datasets/pretrain/guidelines/guidelines.jsonl
     ds_type: json
-    type: completion
+    type: completion 
     field: text
 
   - path: $STORAGE_ROOT/meditron/datasets/pretrain/pubmed/pubmed_3B.jsonl
     ds_type: json
-    type: completion
+    type: completion 
+    field: text
+    
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/redpajama_400M/replay_400M.jsonl
+    ds_type: json
+    type: completion 
+    field: text
+    
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/textbooks_surya/textbooks.jsonl
+    ds_type: json
+    type: completion 
+    field: text
+  
+  - path: $STORAGE_ROOT/meditron/datasets/pretrain/up2date_pre/up2date_pre.jsonl
+    ds_type: json
+    type: completion 
     field: text
 
 dataset_processes: 64
@@ -86,7 +115,7 @@ train_on_inputs: false
 
 num_epochs: 1
 micro_batch_size: 2
-gradient_accumulation_steps: 16
+gradient_accumulation_steps: 2
 max_grad_norm: 1.0
 
 # ========================
@@ -95,10 +124,10 @@ max_grad_norm: 1.0
 optimizer: adamw_torch
 optim_args:
   fused: true
-learning_rate: 5.0e-6
+learning_rate: 3.0e-5
 lr_scheduler: cosine
 cosine_min_lr_ratio: 0.1
-warmup_ratio: 0.03 
+warmup_ratio: 0.0
 weight_decay: 0.05
 
 gradient_checkpointing: true
@@ -116,10 +145,13 @@ load_in_8bit: false
 # ========================
 logging_steps: 1
 saves_per_epoch: 1
-evals_per_epoch: 1 
-eval_set_size: 0.001 
+evals_per_epoch: 0
+eval_set_size: 0.0
 eval_table_size: null
 early_stopping_patience: null
 
 wandb_project: $WANDB_PROJECT
 wandb_entity: $WANDB_ENTITY
+
+special_tokens:
+  pad_token: <|end_of_text|>

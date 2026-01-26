@@ -118,6 +118,16 @@ Results:
 
 Or epoch 3, the model start to overfit and perfs are way worse.
 
+
+
+
+
+
+
+
+
+
+
 # NEW
 
 Model: /capstor/store/cscs/swissai/a127/meditron/models/Meditron-Apertus-8b-xav-no-miriad-no-warmup-5e-6
@@ -197,6 +207,22 @@ Resps mean length: 1079.5
 ##### Lower learning rate (explore overfitting hypothesis)
 ##### Remove continued pretraining (Pubmed + Guildelines)
 ##### Include medical reasoning dataset
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ### Lower batch size (256 VS 1024) Leads to highly deteriorated performance for the ablations.

@@ -2,6 +2,7 @@
 # Model & Paths
 # ========================
 base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
+
 output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-only-med-no-moove-xav
 
 dataset_prepared_path: $USER_STORAGE/prepared/Meditron-Apertus-8B-xav
