@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
 #SBATCH --cpus-per-task 288
-#SBATCH --time 1:29:59
+#SBATCH --time 2:59:59
 #SBATCH --environment ../.edf/new_axolotl.toml
 #SBATCH -A a127
 

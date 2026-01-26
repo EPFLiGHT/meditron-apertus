@@ -2,12 +2,12 @@
 # Model & Paths
 # ========================
 base_model: $STORAGE_ROOT/apertus/huggingface/Apertus8B
-output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-only-med-no-moove-xav
+output_dir: $STORAGE_ROOT/meditron/models/Meditron-Apertus-8B-xav-trad-5e-6-only-mediset
 
-dataset_prepared_path: $USER_STORAGE/prepared/Meditron-Apertus-8B-xav
+dataset_prepared_path: $USER_STORAGE/prepared/meditron-apertus-xav-trad-only-mediset
 load_prepared_dataset: true
 
-wandb_name: Meditron-Apertus-8B-only-med-no-moove-xav
+wandb_name: Meditron-Apertus-8B-xav-trad-5e-6-only-mediset
 
 # ========================
 # Hardware & Speed
@@ -18,7 +18,6 @@ tf32: false
 flash_attention: true
 flash_attn_rms_norm: true
 flash_attn_fuse_qkv: false
-#attn_implementation: flash_attention_3
 xformers_attention: null
 strict: false
 
@@ -29,7 +28,7 @@ chat_template: tokenizer_default
 datasets:
   # -- Chat Datasets (Shared Config) --
   - &chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/miriad/miriad-4.4M.jsonl
+    path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
     ds_type: json
     type: chat_template
     field_messages: conversations
@@ -40,10 +39,7 @@ datasets:
       system: [system]
       user: [user, human]
       assistant: [assistant, gpt]
-
-  - <<: *chat_config
-    path: $STORAGE_ROOT/meditron/datasets/masked/meadow/meadow.jsonl
-
+      
   - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/medqa/medqa.jsonl
 
@@ -58,17 +54,6 @@ datasets:
 
   - <<: *chat_config
     path: $STORAGE_ROOT/meditron/datasets/masked/wikidoc_qa/wikidoc_qa.jsonl
-
-  # -- Completion Datasets --
-  - path: $STORAGE_ROOT/meditron/datasets/pretrain/guidelines/guidelines.jsonl
-    ds_type: json
-    type: completion
-    field: text
-
-  - path: $STORAGE_ROOT/meditron/datasets/pretrain/pubmed/pubmed_3B.jsonl
-    ds_type: json
-    type: completion
-    field: text
 
 dataset_processes: 64
 shuffle_merged_datasets: true
@@ -85,8 +70,8 @@ group_by_length: false
 train_on_inputs: false
 
 num_epochs: 1
-micro_batch_size: 4
-gradient_accumulation_steps: 8
+micro_batch_size: 2
+gradient_accumulation_steps: 16
 max_grad_norm: 1.0
 
 # ========================
@@ -95,7 +80,7 @@ max_grad_norm: 1.0
 optimizer: adamw_torch
 optim_args:
   fused: true
-learning_rate: 1.0e-5
+learning_rate: 5.0e-6
 lr_scheduler: cosine
 cosine_min_lr_ratio: 0.1
 warmup_ratio: 0.03 

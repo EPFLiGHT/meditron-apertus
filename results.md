@@ -118,6 +118,81 @@ Results:
 
 Or epoch 3, the model start to overfit and perfs are way worse.
 
+# NEW
+
+Model: /capstor/store/cscs/swissai/a127/meditron/models/Meditron-Apertus-8b-xav-no-miriad-no-warmup-5e-6
+Status: COMPLETED
+Results:
+|  Tasks   |Version|      Filter       |n-shot|  Metric   |   |Value |   |Stderr|
+|----------|-------|-------------------|-----:|-----------|---|-----:|---|-----:|
+|medmcqa_g |Yaml   |strict-final-answer|     0|exact_match|↑  |0.3689|±  |0.0075|
+|medqa_g   |Yaml   |strict-final-answer|     0|exact_match|↑  |0.3158|±  |0.0130|
+|pubmedqa_g|Yaml   |strict-final-answer|     0|exact_match|↑  |0.6160|±  |0.0218|
+Invalids: 1284/11912 (10.7790%)
+Eval folder: eval_results/eval-apertus-8b_meditron-apertus-8b-xav-no-miriad-no-warmup-5e-6_1448409
+Resps mean length: 1978.6
+
+== eval_reports/R-eval-apertus-8b.1418629.err ==
+Model: /capstor/store/cscs/swissai/a127/meditron/models/meditron-apertus-8b-only-miriad-higher-accumulation
+Status: COMPLETED
+Results:
+|  Tasks   |Version|      Filter       |n-shot|  Metric   |   |Value|   |Stderr|
+|----------|-------|-------------------|-----:|-----------|---|----:|---|-----:|
+|medmcqa_g |Yaml   |strict-final-answer|     0|exact_match|↑  |0.432|±  |0.0077|
+|medqa_g   |Yaml   |strict-final-answer|     0|exact_match|↑  |0.491|±  |0.0140|
+|pubmedqa_g|Yaml   |strict-final-answer|     0|exact_match|↑  |0.724|±  |0.0200|
+Invalids: 526/11912 (4.4157%)
+Eval folder: eval_results/eval-apertus-8b_meditron-apertus-8b-only-miriad-higher-accumulation_1451069
+Resps mean length: 3468.0
+
+Model: /capstor/store/cscs/swissai/a127/meditron/models/Meditron-Apertus-8B-xav-trad-5e-6
+Status: COMPLETED
+Results:
+|  Tasks   |Version|      Filter       |n-shot|  Metric   |   |Value |   |Stderr|
+|----------|-------|-------------------|-----:|-----------|---|-----:|---|-----:|
+|medmcqa_g |Yaml   |strict-final-answer|     0|exact_match|↑  |0.4415|±  |0.0077|
+|medqa_g   |Yaml   |strict-final-answer|     0|exact_match|↑  |0.4957|±  |0.0140|
+|pubmedqa_g|Yaml   |strict-final-answer|     0|exact_match|↑  |0.6260|±  |0.0217|
+Invalids: 693/11912 (5.8177%)
+Eval folder: eval_results/eval-apertus-8b_meditron-apertus-8b-xav-trad-5e-6_1448431
+Resps mean length: 997.4
+
+Model: /capstor/store/cscs/swissai/a127/meditron/models/Meditron-Apertus-8B-xav-trad-1e-6
+Status: COMPLETED
+Results:
+|  Tasks   |Version|      Filter       |n-shot|  Metric   |   |Value |   |Stderr|
+|----------|-------|-------------------|-----:|-----------|---|-----:|---|-----:|
+|medmcqa_g |Yaml   |strict-final-answer|     0|exact_match|↑  |0.4733|±  |0.0077|
+|medqa_g   |Yaml   |strict-final-answer|     0|exact_match|↑  |0.5145|±  |0.0140|
+|pubmedqa_g|Yaml   |strict-final-answer|     0|exact_match|↑  |0.7200|±  |0.0201|
+Invalids: 208/11912 (1.7461%)
+Eval folder: eval_results/eval-apertus-8b_meditron-apertus-8b-xav-trad-1e-6_1451073
+Resps mean length: 882.9
+
+Model: /capstor/store/cscs/swissai/a127/meditron/models/Meditron-Apertus-8B-xav-trad-5e-6-only-miriad
+Status: COMPLETED
+Results:
+|  Tasks   |Version|      Filter       |n-shot|  Metric   |   |Value |   |Stderr|
+|----------|-------|-------------------|-----:|-----------|---|-----:|---|-----:|
+|medmcqa_g |Yaml   |strict-final-answer|     0|exact_match|↑  |0.4600|±  |0.0077|
+|medqa_g   |Yaml   |strict-final-answer|     0|exact_match|↑  |0.4658|±  |0.0140|
+|pubmedqa_g|Yaml   |strict-final-answer|     0|exact_match|↑  |0.7200|±  |0.0201|
+Invalids: 421/11912 (3.5343%)
+Eval folder: eval_results/eval-apertus-8b_meditron-apertus-8b-xav-trad-5e-6-only-miriad_1451072
+Resps mean length: 615.7
+
+Model: /capstor/store/cscs/swissai/a127/meditron/models/Meditron-Apertus-8B-xav-trad-5e-6-no-cont
+Status: COMPLETED
+Results:
+|  Tasks   |Version|      Filter       |n-shot|  Metric   |   |Value |   |Stderr|
+|----------|-------|-------------------|-----:|-----------|---|-----:|---|-----:|
+|medmcqa_g |Yaml   |strict-final-answer|     0|exact_match|↑  |0.4406|±  |0.0077|
+|medqa_g   |Yaml   |strict-final-answer|     0|exact_match|↑  |0.4831|±  |0.0140|
+|pubmedqa_g|Yaml   |strict-final-answer|     0|exact_match|↑  |0.6340|±  |0.0216|
+Invalids: 692/11912 (5.8093%)
+Eval folder: eval_results/eval-apertus-8b_meditron-apertus-8b-xav-trad-5e-6-no-cont_1451071
+Resps mean length: 1079.5
+
 #### Planned next experiments:
 ##### Lower learning rate (explore overfitting hypothesis)
 ##### Remove continued pretraining (Pubmed + Guildelines)

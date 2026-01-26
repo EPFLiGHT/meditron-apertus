@@ -2,12 +2,12 @@
 #SBATCH --job-name meditron-eval
 #SBATCH --output eval_reports/R-%x.%j.err
 #SBATCH --error eval_reports/R-%x.%j.err
-#SBATCH --nodes 1
+#SBATCH --nodes 2
 #SBATCH --ntasks-per-node 1
 #SBATCH --gres gpu:4
 #SBATCH --cpus-per-task 64
 #SBATCH --partition=normal
-#SBATCH --time=1:59:59
+#SBATCH --time=2:29:59
 #SBATCH --environment ../.edf/new_axolotl.toml
 #SBATCH -A a127
 
@@ -198,6 +198,7 @@ if [ "$DEBUG_FLAG" -eq 1 ]; then
     LIMIT_ARGS=(--limit 100)
 fi
 
+#MODEL_ARGS="pretrained=$MODEL_PATH,dtype=bfloat16,attn_implementation=flash_attention_3,trust_remote_code=True"
 MODEL_ARGS="pretrained=$MODEL_PATH,dtype=bfloat16,attn_implementation=flash_attention_2,trust_remote_code=True"
 if [ "$MODEL_PARALLELISM" -eq 1 ]; then
     MODEL_ARGS="$MODEL_ARGS,parallelize=True"
