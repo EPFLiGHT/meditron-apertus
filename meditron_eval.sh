@@ -176,7 +176,7 @@ export HF_DATASETS_TRUST_REMOTE_CODE=1
 export TRITON_CACHE_DIR=$USER_STORAGE/triton
 export HF_DATASETS_CACHE=$HF_HOME/datasets
 unset TRANSFORMERS_CACHE
-export LM_EVAL_INCLUDE_PATH="/users/theimer/lm-evaluation-harness/lm_eval/tasks"
+export LM_EVAL_INCLUDE_PATH="/users/$USER/lm-evaluation-harness/lm_eval/tasks"
 
 echo "WORLD_SIZE=$WORLD_SIZE"
 echo "MASTER_ADDR=$MASTER_ADDR"
